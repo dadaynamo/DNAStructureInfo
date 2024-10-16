@@ -19,13 +19,22 @@ $(TARGET): $(SRCS)
 # Regola per eseguire il programma con parametri passati
 # Regola per eseguire il programma con parametri
 comparison: $(TARGET)
-	@read -p "Enter output name: " outputname; \
-	read -p "Enter TOTsize: " totSize; \
-	./$(TARGET) --outputName $$outputname --totSize $$totSize --type R
+	@read -p "Enter typeIn [E, T]: " typeIn; \
+	read -p "Enter typeOut [C, T]: " typeOut; \
+	read -p "Enter profile [A, G]: " profile; \
+	read -p "Enter inOrigin: " inOrigin; \
+	read -p "Enter outputName: " outputName; \
+	read -p "Enter inListComp: " inListComp; \
+	./$(TARGET) --type C --typeIn $$typeIn --typeOut $$typeOut --profile $$profile --inOrigin $$inOrigin --outputName $$outputName --inListComp $$inListComp
+
 individual : $(TARGET)
-	@read -p "Enter output name: " outputname; \
-	read -p "Enter TOTsize: " totSize; \
-	./$(TARGET) --outputName $$outputname --totSize $$totSize --type R
+	@read -p "Enter typeIn [E, T]: " typeIn; \
+	read -p "Enter typeOut [C, T]: " typeOut; \
+	read -p "Enter profile [A, G]: " profile; \
+	read -p "Enter inOrigin: " inOrigin; \
+	read -p "Enter outputName: " outputName; \
+	read -p "Enter inListComp: " inListComp; \
+	./$(TARGET) --type I --typeIn $$typeIn --typeOut $$typeOut --profile $$profile --inOrigin $$inOrigin --outputName $$outputName
 
 # DA FARE COMPARISON E INDIVIDUAL. NON UTILIZZARE ANCORA
 

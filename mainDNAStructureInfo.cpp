@@ -62,7 +62,7 @@ void printGlobal (){
     cout << "outputName " << outputName << endl;
     cout << "inListComp ";
     for (const auto& str : inListComp) {
-        std::cout << str << "  ";
+        std::cout << str << " ";
     }
     cout << endl;
 
