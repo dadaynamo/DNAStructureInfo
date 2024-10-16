@@ -22,12 +22,26 @@ make individual
 Options:
   --help                        Show this help message and exit.
   
-  --type <type>                 Specify the type of sequences (Raw, Eds, Eds-intensive, Test)
-                                 Example: --type [R, E, I, T]
+  --type                        Specify the type of Procedure (Comparison, Individual)
+                                 Example: --type [C , I]
 
-  --output <outputfile>          Specify the name of the output file without the extension.
-                                 Example: --output result
+  --typeOut                      Specify the extention of the output file (.txt, .csv).
+                                 Example: --typeOut [C , T]
 
+  --typeIn                      Specify the extention of the file in input (.eds, .txt)
+                                Example: --typeIn [E, T]
+
+  --profile                     Specify the style of the output table (General, Advanced)
+                                Example: --profile [G, A]      
+  
+  --outputName                  Specify the name of the ouput file without extention
+                                Example --outputName finalout
+  
+  --inOrigin                    Specify in a comparison test the original file to compare
+                                --inOrigin original
+
+  --inListComp                  Specify the name list of the file compressed
+                                --inListComp comp1 comp2 comp3
 
   --version                      Display the version of the program and exit.
 
