@@ -53,13 +53,6 @@ int displayHelp() { //descrizione generale
 
 
 void printGlobal (){
-    /*
-        char type;  // C -> Comparison, I -> Individual
-        char typeIn;  // E -> .eds, T -> .txt
-        char typeOut; // C -> .csv, T -> .txt
-        char profile; // G -> General, A -> Advanced
-        std::string inOrigin; //Nome file Originale
-     */
 
     cout << "Type " << type << endl;
     cout << "TypeIn " << typeIn << endl;

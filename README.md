@@ -16,7 +16,7 @@ make individual
 
 ### Classic Execution
 ```
-./EDS-GEN [option] [argument] | ...
+./mainDNAStructureInfo [option] [argument] | ...
 ```
 
 Options:
@@ -33,8 +33,8 @@ Options:
 
 ### Examples:
 ```
-  
+./mainDNAStructureInfo --type C --typeOut T --typeIn E --profile A --outputName output --inOrigin input --inListComp test1 test2 test3
 ```
 ```
-  
+  ./mainDNAStructureInfo --type I --typeOut T --typeIn E --profile A --outputName output --inOrigin input
 ```
