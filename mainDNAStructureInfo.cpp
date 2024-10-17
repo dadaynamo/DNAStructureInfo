@@ -11,6 +11,18 @@
 #include <cmath> // Necessario per le funzioni logaritmiche
 
 /*
+Table Output
+|------------------------------------------------------------------------------------------------|
+| Filename    | Entropy     | LocalEnt    | Redundancy  | Efficiency | TassoComp   | TYPE        |
+|------------------------------------------------------------------------------------------------|
+| file1       | 1.78        | 1.5         | 104.4       | 0.5        | 0.1         | Original    |
+|-------------|-------------|-------------|-------------|------------|-------------|-------------|
+| file2       | 1.78        | 1.5         | 104.4       | 0.5        | 0.5         | Comparison  |
+|-------------|-------------|-------------|-------------|------------|-------------|-------------|
+| file3       | 1.78        | 1.5         | 104.4       | 0.5        | 0.5         | Comparison  |
+|-------------|-------------|-------------|-------------|------------|-------------|-------------|
+| file4       | 1.78        | 1.5         | 104.4       | 0.5        | 0.5         | Comparison  |
+|------------------------------------------------------------------------------------------------|
 
 */
 using namespace std;
@@ -106,8 +118,6 @@ int displayHelp() { //descrizione generale
     return 0;
 }
 
-
-
 void printGlobal (){
 
     cout << "Type " << type << endl;
@@ -124,14 +134,18 @@ void printGlobal (){
 
 }
 
-double Entropy(std::string inputName){ //Calcolo entropia di ordine zero di una stringa 
+double localEntropy(){
+    return 1.7;
+}
+
+double entropy(std::string inputName){ //Calcolo entropia di ordine zero di una stringa 
     
     double entropy = 0.0;
 
     std::int64_t countA = 0, countC = 0, countG = 0, countT = 0; //contatori occorrenze
     const std::size_t bufferSize = 1024 * 1024; // 1 MB buffer
     char buffer[bufferSize];  // Buffer temporaneo per leggere il file
-  
+    
     // Aprire il file in modalità binaria
     std::ifstream file(inputName+".txt", std::ios::in | std::ios::binary);
     // Variabile per la dimensione letta
@@ -183,9 +197,58 @@ double Entropy(std::string inputName){ //Calcolo entropia di ordine zero di una 
     std::cout << "Occurrences of 'T': " << countT << std::endl;
     std::cout << "Entropy DNA': " << entropy << std::endl;
     
-    return 0;
+    return entropy;
 } 
 
+double lE(){
+    return 0.0;
+}
+double tassoComp(){
+    return 0.0;
+}
+double efficiency(){
+    return 0.0;
+}
+double redundancy(){
+    return 0.0;
+}
+void updateStats(double stats[5]){
+    stats[1] =  entropy(inOrigin);
+    stats[2] =  localEntropy();
+    stats[3] =  redundancy();
+    stats[4] =  efficiency();
+    stats[5] =  tassoComp();
+
+}
+
+void createTableI (double stats[5]){ //Creazione tabella finale per type individual e inserirle nel file
+    if(typeOut == 'C'){ //creazione file .csv
+        // Creazione di un oggetto ofstream per scrivere nel file CSV
+        std::ofstream file(outputName+".csv");
+        // Verifica se il file è stato aperto correttamente
+        if (!file.is_open()) {
+            std::cerr << "Errore nell'aprire il file!" << std::endl;
+        }
+
+        // Scrivere l'intestazione (header) del CSV
+        if(profile == 'G'){ //Generazione tabella riassuntiva
+            file << "Filename,Entropy,LocalEntropy" << std::endl;
+            file << inOrigin << "," << stats[1] << "," << stats[2] <<std::endl;
+
+        }else if(profile == 'A'){ //Generazione tabella estesa
+            file << "Filename,Entropy,LocalEntropy,Redundancy,Efficiency,TassoCompressione" << std::endl;
+            file << inOrigin << "," << stats[1] << "," << stats[2] << "," << stats[3] << "," << stats[4] << "," << stats[5] <<std::endl;
+        }
+        
+        file.close();
+        std::cout << "File CSV creato con successo!" << std::endl;
+   
+        
+    }else if(typeOut == 'T'){ //creazione file .txt
+        std::cout << "Da implementare!" << std::endl;
+        
+    }
+}
 
 //MAIN ----------------------------------------------------------------
 int main(int argc, char* argv[]){
@@ -234,17 +297,17 @@ int main(int argc, char* argv[]){
                     return 1;
                 }
             }
-        } else if (strcmp(argv[i], "--typeIn") == 0) { //Estensione file in input
-            if (i + 1 < argc) {
-                if (strcmp(argv[i + 1], "E") == 0) {
-                    typeIn = 'E'; // EDS
-                } else if (strcmp(argv[i + 1], "T") == 0) {
-                    typeIn = 'T'; // TXT
-                }else{
-                    std::cerr << "Errore inserimento typeIn" << std::endl;
-                    return 1;
-                }
-            }
+        //} else if (strcmp(argv[i], "--typeIn") == 0) { //Estensione file in input
+          //  if (i + 1 < argc) {
+            //    if (strcmp(argv[i + 1], "E") == 0) {
+              //      typeIn = 'E'; // EDS
+                //} else if (strcmp(argv[i + 1], "T") == 0) {
+                 //   typeIn = 'T'; // TXT
+                //}else{
+                  //  std::cerr << "Errore inserimento typeIn" << std::endl;
+                    //return 1;
+                //}
+            //}
         } else if (strcmp(argv[i], "--profile") == 0) { //Estensione file in input
             if (i + 1 < argc) {
                 if (strcmp(argv[i + 1], "G") == 0) {
@@ -285,14 +348,17 @@ int main(int argc, char* argv[]){
         return 0;
     }
     
+    
 
     switch (type)
     {
     case 'C': //Inizio il comparison
-        Entropy(inOrigin);
+        
         break;
     case 'I': //Inizio l'individual
-        Entropy(inOrigin);
+        double stats [5]; //array per contenere le stats del file individuale
+        updateStats(stats);
+        createTableI(stats);
         break;
     default:
         std::cerr << "Errore inserimento type" << std::endl;
@@ -300,6 +366,7 @@ int main(int argc, char* argv[]){
         break;
     }
     
+    cout << "Fine prog" << endl;
 
     return 0;
 
