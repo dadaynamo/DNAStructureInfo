@@ -6,6 +6,9 @@
 #include <fstream> // Libreria per la gestione dei file
 #include <random>
 #include <vector> //Lista dinamica
+#include <unordered_map>
+#include <cstdint> // Per int64_t
+#include <cmath> // Necessario per le funzioni logaritmiche
 
 /*
 
@@ -46,7 +49,60 @@ int displayVersion(){ //mostra la versione del progetto
 }
 
 int displayHelp() { //descrizione generale
-    std::cout << "Usage:\n";
+      std::cout << "# DNAStructureInfo" << std::endl;
+    std::cout << "DNAStructureInfo is a C++ tool that analyzes DNA sequences, extracting key metrics like entropy, local entropy, and compressibility rate." << std::endl;
+    std::cout << "It generates a summary table to help researchers and bioinformaticians better understand the complexity and structure of the DNA." << std::endl;
+    std::cout << std::endl;
+    
+    std::cout << "## Installation" << std::endl;
+    std::cout << "Use make command to compile the cpp program" << std::endl;
+    std::cout << std::endl;
+    
+    std::cout << "## Usage: " << std::endl;
+    std::cout << "### With Makefile" << std::endl;
+    std::cout << std::endl;
+    std::cout << "make comparison" << std::endl;
+    std::cout << std::endl;
+    std::cout << "make individual" << std::endl;
+    std::cout << std::endl;
+    
+    std::cout << "### Classic Execution" << std::endl;
+    std::cout << std::endl;
+    std::cout << "./mainDNAStructureInfo [option] [argument] | ..." << std::endl;
+    std::cout << std::endl;
+    
+    std::cout << "Options:" << std::endl;
+    std::cout << "  --help                        Show this help message and exit." << std::endl;
+    std::cout << std::endl;
+    std::cout << "  --type                        Specify the type of Procedure (Comparison, Individual)" << std::endl;
+    std::cout << "                               Example: --type [C , I]" << std::endl;
+    std::cout << std::endl;
+    std::cout << "  --typeOut                      Specify the extension of the output file (.txt, .csv)." << std::endl;
+    std::cout << "                               Example: --typeOut [C , T]" << std::endl;
+    std::cout << std::endl;
+    std::cout << "  --typeIn                      Specify the extension of the file in input (.eds, .txt)" << std::endl;
+    std::cout << "                               Example: --typeIn [E, T]" << std::endl;
+    std::cout << std::endl;
+    std::cout << "  --profile                     Specify the style of the output table (General, Advanced)" << std::endl;
+    std::cout << "                               Example: --profile [G, A]" << std::endl;
+    std::cout << std::endl;
+    std::cout << "  --outputName                  Specify the name of the output file without extension" << std::endl;
+    std::cout << "                               Example --outputName finalout" << std::endl;
+    std::cout << std::endl;
+    std::cout << "  --inOrigin                    Specify in a comparison test the original file to compare" << std::endl;
+    std::cout << "                               --inOrigin original" << std::endl;
+    std::cout << std::endl;
+    std::cout << "  --inListComp                  Specify the name list of the files to compare" << std::endl;
+    std::cout << "                               --inListComp comp1 comp2 comp3" << std::endl;
+    std::cout << std::endl;
+    std::cout << "  --version                     Display the version of the program and exit." << std::endl;
+    std::cout << std::endl;
+    
+    std::cout << "### Examples:" << std::endl;
+    std::cout << std::endl;
+    std::cout << "./mainDNAStructureInfo --type C --typeOut T --typeIn E --profile A --outputName output --inOrigin input --inListComp test1 test2 test3" << std::endl;
+    std::cout << std::endl;
+    std::cout << "./mainDNAStructureInfo --type I --typeOut T --typeIn E --profile A --outputName output --inOrigin input" << std::endl;
     return 0;
 }
 
@@ -67,6 +123,69 @@ void printGlobal (){
     cout << endl;
 
 }
+
+double Entropy(std::string inputName){ //Calcolo entropia di ordine zero di una stringa 
+    
+    double entropy = 0.0;
+
+    std::int64_t countA = 0, countC = 0, countG = 0, countT = 0; //contatori occorrenze
+    const std::size_t bufferSize = 1024 * 1024; // 1 MB buffer
+    char buffer[bufferSize];  // Buffer temporaneo per leggere il file
+  
+    // Aprire il file in modalità binaria
+    std::ifstream file(inputName+".txt", std::ios::in | std::ios::binary);
+    // Variabile per la dimensione letta
+    std::int64_t dim = 0; // Variabile che tiene traccia della dimensione totale letta
+
+    if (!file) {
+        std::cerr << "Error opening file!" << std::endl;
+        return 1;
+    }
+       // Leggere il file a blocchi e contare le occorrenze
+    while (file.read(buffer, bufferSize) || file.gcount() > 0) {
+        std::size_t bytesRead = file.gcount(); // Numero di byte letti
+        dim += bytesRead; // Aggiorna la dimensione totale letta
+        // Scorrere il buffer e contare le occorrenze di A, C, G, T
+        for (std::size_t i = 0; i < bytesRead; ++i) {
+            switch (buffer[i]) {
+                case 'A': 
+                    ++countA;
+                    break;
+                case 'C':
+                    ++countC;
+                    break;
+                case 'G':
+                    ++countG;
+                    break;
+                case 'T':
+                    ++countT;
+                    break;
+            }
+        }
+    }
+
+    file.close();
+    double freqA = static_cast<double>(countA) / static_cast<double>(dim);
+    double freqC = static_cast<double>(countC) / static_cast<double>(dim);
+    double freqG = static_cast<double>(countG) / static_cast<double>(dim);
+    double freqT = static_cast<double>(countT) / static_cast<double>(dim);
+
+
+    //calcolo entropia
+    entropy = - ((log2(freqA)*freqA) + (log2(freqC)*freqC) + (log2(freqG)*freqG) + (log2(freqT)*freqT));
+
+
+    // Stampa i risultati
+    std::cout << "Dim file: " << dim << std::endl;
+    std::cout << "Occurrences of 'A': " << countA << std::endl;
+    std::cout << "Occurrences of 'C': " << countC << std::endl;
+    std::cout << "Occurrences of 'G': " << countG << std::endl;
+    std::cout << "Occurrences of 'T': " << countT << std::endl;
+    std::cout << "Entropy DNA': " << entropy << std::endl;
+    
+    return 0;
+} 
+
 
 //MAIN ----------------------------------------------------------------
 int main(int argc, char* argv[]){
@@ -89,8 +208,7 @@ int main(int argc, char* argv[]){
         displayVersion();
         return 0;
     }
-
- 
+   
 
     // Analizza gli argomenti della riga di comando
     for(int i = 1; i < argc; i += 2) {
@@ -100,7 +218,10 @@ int main(int argc, char* argv[]){
                     type = 'C'; // Comparison
                 } else if (strcmp(argv[i + 1], "I") == 0) {
                     type = 'I'; // Individual
-                } 
+                } else{
+                    std::cerr << "Errore inserimento type" << std::endl;
+                    return 1;
+                }
             }
         } else if (strcmp(argv[i], "--typeOut") == 0) { //Estensione file in output
             if (i + 1 < argc) {
@@ -108,6 +229,9 @@ int main(int argc, char* argv[]){
                     typeOut = 'C'; // CSV
                 } else if (strcmp(argv[i + 1], "T") == 0) {
                     typeOut = 'T'; // TXT
+                } else{
+                    std::cerr << "Errore inserimento typeOut" << std::endl;
+                    return 1;
                 }
             }
         } else if (strcmp(argv[i], "--typeIn") == 0) { //Estensione file in input
@@ -116,6 +240,9 @@ int main(int argc, char* argv[]){
                     typeIn = 'E'; // EDS
                 } else if (strcmp(argv[i + 1], "T") == 0) {
                     typeIn = 'T'; // TXT
+                }else{
+                    std::cerr << "Errore inserimento typeIn" << std::endl;
+                    return 1;
                 }
             }
         } else if (strcmp(argv[i], "--profile") == 0) { //Estensione file in input
@@ -124,6 +251,9 @@ int main(int argc, char* argv[]){
                     profile = 'G'; // General
                 } else if (strcmp(argv[i + 1], "A") == 0) {
                     profile = 'A'; // Advanced
+                }else{
+                    std::cerr << "Errore inserimento profile" << std::endl;
+                    return 1;
                 }
             }
         } else if (strcmp(argv[i], "--outputName") == 0) {
@@ -149,7 +279,27 @@ int main(int argc, char* argv[]){
     }
        
 
-    printGlobal();
+    // Verifica gli argomenti passati
+    if (argc > 1 && std::string(argv[1]) == "--test"){
+        printGlobal();
+        return 0;
+    }
+    
+
+    switch (type)
+    {
+    case 'C': //Inizio il comparison
+        Entropy(inOrigin);
+        break;
+    case 'I': //Inizio l'individual
+        Entropy(inOrigin);
+        break;
+    default:
+        std::cerr << "Errore inserimento type" << std::endl;
+        return 1;
+        break;
+    }
+    
 
     return 0;
 
