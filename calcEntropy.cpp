@@ -75,8 +75,9 @@ double entropy(std::string inputName){ //Calcolo entropia di ordine zero di una 
 } 
 
 
- int main(){
-    double entropyfe = entropy("test/smalltest");
+ int main(int argc, char* argv[]){
+    std::string filename = argv[1];
+    double entropyfe = entropy(filename);
     cout << entropyfe << endl;;
 
     return 0;
