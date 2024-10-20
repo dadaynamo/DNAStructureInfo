@@ -38,10 +38,107 @@ char profile; // G -> General, A -> Advanced
 std::string outputName; //file name senza estensione
 std::string inOrigin; //Nome file Originale
 std::vector<std::string> inListComp; //Lista dinamica di filename da confrontare con l'originale
+double stats [5]; //array per contenere le stats del file individuale
+int tot;
+int countA, countC, countG, countT;
+//int New_alpha_size = 4; //dimensione dell'alfabeto genomico
+
 
 
 //FUNCTIONS ----------------------------------------------------------
 
+//********************************FUNZIONI PROF************************************** */
+
+//Calolo entropia con funzioni prof
+//Per usarli bisogna assegnare alle var globali count e tot le frequenze di ogni carattere
+
+int calcFreqChar(std::string filename){ //Dovrebbe essere una buona ottimizzazione
+     // Apri il file in modalità di lettura
+    ifstream file(filename);
+    if (!file.is_open()) {
+        cerr << "Errore nell'apertura del file." << endl;
+        return 1;
+    }
+    // Leggi il file e conta la frequenza di A, C, G, T
+    char ch;
+    while (file.get(ch)) {
+        switch (ch) {
+            case 'A':
+                countA++;
+                break;
+            case 'C':
+                countC++;
+                break;
+            case 'G':
+                countG++;
+                break;
+            case 'T':
+                countT++;
+                break;
+        }
+        tot++; // Incrementa il numero totale di caratteri letti
+    }
+
+    file.close(); // Chiudi il file
+    return 0;
+}
+
+// Funzione per calcolare l'entropia negativa (entropia di Shannon)
+double entropNeg0() {
+    double entropia = 0.0;
+
+    // Frequenze relative per ciascuna lettera (A, C, G, T)
+    if (countA > 0) {
+        double pA = (double)countA / tot;
+        entropia -= pA * (log(pA) / log(2));
+    }
+    if (countC > 0) {
+        double pC = (double)countC / tot;
+        entropia -= pC * (log(pC) / log(2));
+    }
+    if (countG > 0) {
+        double pG = (double)countG / tot;
+        entropia -= pG * (log(pG) / log(2));
+    }
+    if (countT > 0) {
+        double pT = (double)countT / tot;
+        entropia -= pT * (log(pT) / log(2));
+    }
+
+    return entropia;
+}
+
+// Funzione per calcolare l'entropia positiva
+double entropPos0() {
+    double entropia = 0.0;
+
+    // Entropia positiva per ciascuna lettera (A, C, G, T)
+    if (countA > 0) {
+        double propA = (double)tot / countA;
+        entropia += ((double)countA / tot) * (log(propA) / log(2));
+    }
+    if (countC > 0) {
+        double propC = (double)tot / countC;
+        entropia += ((double)countC / tot) * (log(propC) / log(2));
+    }
+    if (countG > 0) {
+        double propG = (double)tot / countG;
+        entropia += ((double)countG / tot) * (log(propG) / log(2));
+    }
+    if (countT > 0) {
+        double propT = (double)tot / countT;
+        entropia += ((double)countT / tot) * (log(propT) / log(2));
+    }
+
+    return entropia;
+}
+
+
+
+
+
+
+//*********************************************************************************** */
 
 int displayVersion(){ //mostra la versione del progetto
        std::cout << "---------------------------------------------------" << std::endl;
@@ -212,7 +309,7 @@ double efficiency(){
 double redundancy(){
     return 0.0;
 }
-void updateStats(double stats[5]){
+void updateStats(){
     stats[1] =  entropy(inOrigin);
     stats[2] =  localEntropy();
     stats[3] =  redundancy();
@@ -221,6 +318,9 @@ void updateStats(double stats[5]){
 
 }
 
+/* ***************************************
+    Calcolo tabella e stampa nel file
+    ************************************** */
 void createTableI (double stats[5]){ //Creazione tabella finale per type individual e inserirle nel file
     if(typeOut == 'C'){ //creazione file .csv
         // Creazione di un oggetto ofstream per scrivere nel file CSV
@@ -240,7 +340,7 @@ void createTableI (double stats[5]){ //Creazione tabella finale per type individ
             file << inOrigin << "," << stats[1] << "," << stats[2] << "," << stats[3] << "," << stats[4] << "," << stats[5] <<std::endl;
         }
         
-        file.close();
+        //file.close();
         std::cout << "File CSV creato con successo!" << std::endl;
    
         
@@ -355,8 +455,8 @@ int main(int argc, char* argv[]){
         
         break;
     case 'I': //Inizio l'individual
-        double stats [5]; //array per contenere le stats del file individuale
-        updateStats(stats);
+       
+        updateStats();
         createTableI(stats);
         break;
     default:
@@ -370,3 +470,14 @@ int main(int argc, char* argv[]){
     return 0;
 
 }
+
+
+
+/*
+// ---- do the work ---------------------------
+  start = getTime(); 
+
+
+
+
+*/
