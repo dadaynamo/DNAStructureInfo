@@ -477,7 +477,10 @@ int main(int argc, char* argv[]){
 // ---- do the work ---------------------------
   start = getTime(); 
 
+// ----- end of work --------------------------
+end = getTime();
 
 
+std::cout << end-start << std::endl;
 
 */
