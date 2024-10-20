@@ -54,7 +54,7 @@ int countA, countC, countG, countT;
 
 int calcFreqChar(std::string filename){ //Dovrebbe essere una buona ottimizzazione
      // Apri il file in modalità di lettura
-    ifstream file(filename);
+    ifstream file(filename+".txt");
     if (!file.is_open()) {
         cerr << "Errore nell'apertura del file." << endl;
         return 1;
@@ -309,8 +309,10 @@ double efficiency(){
 double redundancy(){
     return 0.0;
 }
-void updateStats(){
-    stats[1] =  entropy(inOrigin);
+void updateStats(std::string filename){ //Update le statistiche del file sppecificato
+    calcFreqChar(filename);
+    stats[1] = entropNeg0();
+    //stats[1] =  entropy(inOrigin);
     stats[2] =  localEntropy();
     stats[3] =  redundancy();
     stats[4] =  efficiency();
@@ -456,7 +458,7 @@ int main(int argc, char* argv[]){
         break;
     case 'I': //Inizio l'individual
        
-        updateStats();
+        updateStats(inOrigin);
         createTableI(stats);
         break;
     default:
