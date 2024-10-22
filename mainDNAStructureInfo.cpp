@@ -311,9 +311,10 @@ double redundancy(){
 }
 void updateStats(std::string filename){ //Update le statistiche del file sppecificato
     calcFreqChar(filename);
-    stats[1] = entropNeg0();
+    stats[1] = entropNeg0(); //entropy prof
     //stats[1] =  entropy(inOrigin);
-    stats[2] =  localEntropy();
+    //stats[2] =  localEntropy();
+    stats[2] = entropPos0();
     stats[3] =  redundancy();
     stats[4] =  efficiency();
     stats[5] =  tassoComp();
