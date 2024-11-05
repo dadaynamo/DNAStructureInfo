@@ -35,14 +35,21 @@ char type;  // C -> Comparison, I -> Individual
 char typeIn;  // E -> .eds, T -> .txt
 char typeOut; // C -> .csv, T -> .txt
 char profile; // G -> General, A -> Advanced
+
 std::string outputName; //file name senza estensione
 std::string inOrigin; //Nome file Originale
+
 std::vector<std::string> inListComp; //Lista dinamica di filename da confrontare con l'originale
+
 double stats [5]; //array per contenere le stats del file individuale
-int tot;
+double stats_comp [5]; //array per contenere le stats del file da comparare
+
+int tot; //Dimensione del file originale
 int countA, countC, countG, countT;
 //int New_alpha_size = 4; //dimensione dell'alfabeto genomico
 
+int tot_comp; //dimensione totale dello specifico file da comparare
+int countA_comp, countC_comp, countG_comp, countT_comp; //frequenze di ACGT nel file da comparare
 
 
 //FUNCTIONS ----------------------------------------------------------
@@ -52,6 +59,11 @@ int countA, countC, countG, countT;
 //Calolo entropia con funzioni prof
 //Per usarli bisogna assegnare alle var globali count e tot le frequenze di ogni carattere
 
+
+/* **********************************************
+    Calcolo delle frequenze di ogni simbolo
+    nel file originale
+    ********************************************* */
 int calcFreqChar(std::string filename){ //Dovrebbe essere una buona ottimizzazione
      // Apri il file in modalità di lettura
     ifstream file(filename+".txt");
@@ -82,6 +94,43 @@ int calcFreqChar(std::string filename){ //Dovrebbe essere una buona ottimizzazio
     file.close(); // Chiudi il file
     return 0;
 }
+
+/* **********************************************
+    Calcolo delle frequenze di ogni simbolo
+    nel file compresso
+    ********************************************* */
+int calcFreqCharComp(std::string filename){ 
+     // Apri il file in modalità di lettura
+    ifstream file(filename+".txt");
+    if (!file.is_open()) {
+        cerr << "Errore nell'apertura del file." << endl;
+        return 1;
+    }
+    // Leggi il file e conta la frequenza di A, C, G, T
+    char ch;
+    while (file.get(ch)) {
+        switch (ch) {
+            case 'A':
+                countA_comp++;
+                break;
+            case 'C':
+                countC_comp++;
+                break;
+            case 'G':
+                countG_comp++;
+                break;
+            case 'T':
+                countT_comp++;
+                break;
+        }
+        tot_comp++; // Incrementa il numero totale di caratteri letti
+    }
+
+    file.close(); // Chiudi il file
+    return 0;
+}
+
+//Funzione di entropie simili (sceglierne una sola)
 
 // Funzione per calcolare l'entropia negativa (entropia di Shannon)
 double entropNeg0() {
@@ -229,9 +278,10 @@ void printGlobal (){
     }
     cout << endl;
 
+
 }
 
-double localEntropy(){
+double localEntropy(){ //IMPORTANTE Da Capire
     return 1.7;
 }
 
@@ -297,11 +347,12 @@ double entropy(std::string inputName){ //Calcolo entropia di ordine zero di una 
     return entropy;
 } 
 
+/* DA IMPLEMENTARE*/
 double lE(){
     return 0.0;
 }
 double tassoComp(){
-    return 0.0;
+    return 8.0;
 }
 double efficiency(){
     return 0.0;
@@ -309,22 +360,36 @@ double efficiency(){
 double redundancy(){
     return 0.0;
 }
-void updateStats(std::string filename){ //Update le statistiche del file sppecificato
+void updateStats(std::string filename){ //Update le statistiche del file specificato
     calcFreqChar(filename);
-    stats[1] = entropNeg0(); //entropy prof
-    //stats[1] =  entropy(inOrigin);
-    //stats[2] =  localEntropy();
-    stats[2] = entropPos0();
-    stats[3] =  redundancy();
-    stats[4] =  efficiency();
-    stats[5] =  tassoComp();
+    stats[0] = entropNeg0(); //entropy prof
+    stats[1] = entropPos0();
+    stats[2] =  redundancy();
+    stats[3] =  efficiency();
+    stats[4] =  tassoComp();
 
+}
+void updateStatsComp(std::string filename){ //Update delle variabili globali legate a un file compresso
+    cout << " TOT size: " << tot << std::endl;
+    cout << " countA: " << countA << std::endl;
+    cout << " countC: " << countC << std::endl;
+    cout << " countG: " << countG << std::endl;
+    cout << " countT: " << countT << std::endl;
+    
+
+    //Aggiornamento varibili globali delle frequenze dei simboli
+    calcFreqCharComp(filename);
+    stats_comp[0] = entropNeg0();
+    stats_comp[1] = entropPos0();
+    stats_comp[2] = redundancy();
+    stats_comp[3] = efficiency();
+    stats_comp[4] = tassoComp();
 }
 
 /* ***************************************
     Calcolo tabella e stampa nel file
     ************************************** */
-void createTableI (double stats[5]){ //Creazione tabella finale per type individual e inserirle nel file
+void createTableI(){ //Creazione tabella finale per type individual e inserirle nel file
     if(typeOut == 'C'){ //creazione file .csv
         // Creazione di un oggetto ofstream per scrivere nel file CSV
         std::ofstream file(outputName+".csv");
@@ -336,14 +401,14 @@ void createTableI (double stats[5]){ //Creazione tabella finale per type individ
         // Scrivere l'intestazione (header) del CSV
         if(profile == 'G'){ //Generazione tabella riassuntiva
             file << "Filename,Entropy,LocalEntropy" << std::endl;
-            file << inOrigin << "," << stats[1] << "," << stats[2] <<std::endl;
+            file << inOrigin << "," << stats[0] << "," << stats[1] <<std::endl;
 
         }else if(profile == 'A'){ //Generazione tabella estesa
             file << "Filename,Entropy,LocalEntropy,Redundancy,Efficiency,TassoCompressione" << std::endl;
-            file << inOrigin << "," << stats[1] << "," << stats[2] << "," << stats[3] << "," << stats[4] << "," << stats[5] <<std::endl;
+            file << inOrigin << "," << stats[0] << "," << stats[1] << "," << stats[2] << "," << stats[3] << "," << stats[4] <<std::endl;
         }
         
-        //file.close();
+        file.close();
         std::cout << "File CSV creato con successo!" << std::endl;
    
         
@@ -351,6 +416,58 @@ void createTableI (double stats[5]){ //Creazione tabella finale per type individ
         std::cout << "Da implementare!" << std::endl;
         
     }
+}
+
+void createTableC(){ //creazione intestazione della tabella nel file per type comparison 
+  if(typeOut == 'C'){ //creazione file .csv
+        // Creazione di un oggetto ofstream per scrivere nel file CSV
+        std::ofstream file(outputName+".csv");
+        // Verifica se il file è stato aperto correttamente
+        if (!file.is_open()) {
+            std::cerr << "Errore nell'aprire il file!" << std::endl;
+        }
+
+        // Scrivere l'intestazione (header) del CSV
+        if(profile == 'G'){ //Generazione tabella riassuntiva
+            file << "Filename,Entropy,LocalEntropy,Type" << std::endl;
+        }else if(profile == 'A'){ //Generazione tabella estesa
+            file << "Filename,Entropy,LocalEntropy,Redundancy,Efficiency,TassoCompressione" << std::endl;
+        }
+        
+        file.close();
+        std::cout << "Intestazione tabella nel File CSV creato con successo!" << std::endl;
+   
+        
+    }else if(typeOut == 'T'){ //creazione file .txt
+        std::cout << "Da implementare!" << std::endl;
+        
+    }
+}
+
+void insertTableC(std::string filename){ //Inserimento nuova riga della tabella nel file per type comparison 
+
+    // Apri il file in modalità append
+    std::ofstream file;
+    file.open(outputName, std::ios::app);
+
+    // Verifica se il file è stato aperto correttamente
+    if (!file.is_open()) {
+        std::cerr << "Errore nell'aprire il file in Append Mode." << std::endl;
+    }
+    
+    // Scrivere l'intestazione (header) del CSV
+    if(profile == 'G'){ //Generazione tabella riassuntiva
+        file << filename  << "," << stats_comp[0] << "," << stats_comp[1] << "," << stats_comp[2] << "\n";
+    }else if(profile == 'A'){ //Generazione tabella estesa
+        file << filename  << "," << stats_comp[0] << "," << stats_comp[1] << "," << stats_comp[2] << "," << stats_comp[3] << "," << stats_comp[4] << "\n";
+    }
+        
+
+    // Scrivi i dati in formato CSV
+   
+    // Chiudi il file
+    file.close();
+    std::cout << "Nuova riga aggiunta con successo!" << std::endl;
 }
 
 //MAIN ----------------------------------------------------------------
@@ -444,23 +561,29 @@ int main(int argc, char* argv[]){
         }
     }
        
-
     // Verifica gli argomenti passati
     if (argc > 1 && std::string(argv[1]) == "--test"){
         printGlobal();
         return 0;
     }
     
-
     switch (type)
     {
     case 'C': //Inizio il comparison
-        
+        //Update stat del file originale
+        updateStats(inOrigin);
+        createTableC();
+        //per ogni file della lista di file compressi fai il confronto e scrivi in tabella
+        for(size_t i = 0 ; i < inListComp.size(); i++ ){
+            //inListComp[i] i-esimo file name compresso
+            updateStatsComp(inListComp[i]);
+            insertTableC(inListComp[i]);
+        }
         break;
     case 'I': //Inizio l'individual
        
         updateStats(inOrigin);
-        createTableI(stats);
+        createTableI();
         break;
     default:
         std::cerr << "Errore inserimento type" << std::endl;
@@ -485,5 +608,33 @@ end = getTime();
 
 
 std::cout << end-start << std::endl;
+
+
+
+
+
+
+
+
+    // Apri il file in modalità append
+    std::ofstream file;
+    file.open(filename, std::ios::app);
+
+    // Verifica se il file è stato aperto correttamente
+    if (!file.is_open()) {
+        std::cerr << "Errore nell'aprire il file." << std::endl;
+        return 1;
+    }
+
+    // Scrivi i dati in formato CSV
+    file << colonna1 << "," << colonna2 << "," << colonna3 << "\n";
+
+    // Chiudi il file
+    file.close();
+
+    std::cout << "Nuova riga aggiunta con successo!" << std::endl;
+
+
+}
 
 */
