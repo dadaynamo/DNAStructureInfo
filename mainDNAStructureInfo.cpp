@@ -448,7 +448,7 @@ void insertTableCorigin(){
 
     // Apri il file in modalità append
     std::ofstream file;
-    file.open(outputName, std::ios::app);
+    file.open(outputName+".csv", std::ios::app);
 
     // Verifica se il file è stato aperto correttamente
     if (!file.is_open()) {
@@ -473,7 +473,7 @@ void insertTableC(std::string filename){ //Inserimento nuova riga della tabella 
 
     // Apri il file in modalità append
     std::ofstream file;
-    file.open(outputName, std::ios::app);
+    file.open(outputName+".csv", std::ios::app);
 
     // Verifica se il file è stato aperto correttamente
     if (!file.is_open()) {
