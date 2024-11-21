@@ -100,6 +100,7 @@ int calcFreqChar(std::string filename){ //Dovrebbe essere una buona ottimizzazio
     nel file compresso
     ********************************************* */
 int calcFreqCharComp(std::string filename){ 
+    countA_comp = 0 , countT_comp = 0 , countC_comp = 0, countG_comp = 0 ; //reset dei contatori per sicurezza
      // Apri il file in modalità di lettura
     ifstream file(filename+".txt");
     if (!file.is_open()) {
@@ -152,31 +153,6 @@ double entropNeg0() {
     if (countT > 0) {
         double pT = (double)countT / tot;
         entropia -= pT * (log(pT) / log(2));
-    }
-
-    return entropia;
-}
-
-// Funzione per calcolare l'entropia positiva
-double entropPos0() {
-    double entropia = 0.0;
-
-    // Entropia positiva per ciascuna lettera (A, C, G, T)
-    if (countA > 0) {
-        double propA = (double)tot / countA;
-        entropia += ((double)countA / tot) * (log(propA) / log(2));
-    }
-    if (countC > 0) {
-        double propC = (double)tot / countC;
-        entropia += ((double)countC / tot) * (log(propC) / log(2));
-    }
-    if (countG > 0) {
-        double propG = (double)tot / countG;
-        entropia += ((double)countG / tot) * (log(propG) / log(2));
-    }
-    if (countT > 0) {
-        double propT = (double)tot / countT;
-        entropia += ((double)countT / tot) * (log(propT) / log(2));
     }
 
     return entropia;
@@ -281,9 +257,7 @@ void printGlobal (){
 
 }
 
-double localEntropy(){ //IMPORTANTE Da Capire
-    return 1.7;
-}
+
 
 double entropy(std::string inputName){ //Calcolo entropia di ordine zero di una stringa 
     
@@ -348,18 +322,44 @@ double entropy(std::string inputName){ //Calcolo entropia di ordine zero di una 
 } 
 
 /* DA IMPLEMENTARE*/
-double lE(){
-    return 0.0;
+// Funzione per calcolare l'entropia positiva
+double entropPos0() { //USABILE
+    double entropia = 0.0;
+
+    // Entropia positiva per ciascuna lettera (A, C, G, T)
+    if (countA > 0) {
+        double propA = (double)tot / countA;
+        entropia += ((double)countA / tot) * (log(propA) / log(2));
+    }
+    if (countC > 0) {
+        double propC = (double)tot / countC;
+        entropia += ((double)countC / tot) * (log(propC) / log(2));
+    }
+    if (countG > 0) {
+        double propG = (double)tot / countG;
+        entropia += ((double)countG / tot) * (log(propG) / log(2));
+    }
+    if (countT > 0) {
+        double propT = (double)tot / countT;
+        entropia += ((double)countT / tot) * (log(propT) / log(2));
+    }
+
+    return entropia;
 }
-double tassoComp(){
-    return 8.0;
-}
-double efficiency(){
-    return 0.0;
+double localEntropy(){ //IMPORTANTE Da Capire
+    return 1;
 }
 double redundancy(){
-    return 0.0;
+    return 2.0;
 }
+double efficiency(){
+    return 3.0;
+}
+double tassoComp(){
+    return 4.0;
+}
+
+
 void updateStats(std::string filename){ //Update le statistiche del file specificato
     calcFreqChar(filename);
     stats[0] = entropNeg0(); //entropy prof
@@ -379,8 +379,8 @@ void updateStatsComp(std::string filename){ //Update delle variabili globali leg
 
     //Aggiornamento varibili globali delle frequenze dei simboli
     calcFreqCharComp(filename);
-    stats_comp[0] = entropNeg0();
-    stats_comp[1] = entropPos0();
+    stats_comp[0] = entropPos0();
+    stats_comp[1] = localEntropy();
     stats_comp[2] = redundancy();
     stats_comp[3] = efficiency();
     stats_comp[4] = tassoComp();
@@ -431,7 +431,7 @@ void createTableC(){ //creazione intestazione della tabella nel file per type co
         if(profile == 'G'){ //Generazione tabella riassuntiva
             file << "Filename,Entropy,LocalEntropy,Type" << std::endl;
         }else if(profile == 'A'){ //Generazione tabella estesa
-            file << "Filename,Entropy,LocalEntropy,Redundancy,Efficiency,TassoCompressione" << std::endl;
+            file << "Filename,Entropy,LocalEntropy,Redundancy,Efficiency,TassoCompressione,Type" << std::endl;
         }
         
         file.close();
@@ -444,6 +444,31 @@ void createTableC(){ //creazione intestazione della tabella nel file per type co
     }
 }
 
+void insertTableCorigin(){
+
+    // Apri il file in modalità append
+    std::ofstream file;
+    file.open(outputName, std::ios::app);
+
+    // Verifica se il file è stato aperto correttamente
+    if (!file.is_open()) {
+        std::cerr << "Errore nell'aprire il file in Append Mode." << std::endl;
+    }
+    
+    // Scrivere l'intestazione (header) del CSV
+    if(profile == 'G'){ //Generazione tabella riassuntiva
+        file << inOrigin  << "," << stats[0] << "," << stats[1] << "," << stats[2] << ",Compared\n";
+    }else if(profile == 'A'){ //Generazione tabella estesa
+        file << inOrigin  << "," << stats[0] << "," << stats[1] << "," << stats[2] << "," << stats[3] << "," << stats[4] << ",Compared\n";
+    }
+        
+
+    // Scrivi i dati in formato CSV
+   
+    // Chiudi il file
+    file.close();
+    std::cout << "Nuova riga aggiunta con successo!" << std::endl;    
+}
 void insertTableC(std::string filename){ //Inserimento nuova riga della tabella nel file per type comparison 
 
     // Apri il file in modalità append
@@ -457,9 +482,9 @@ void insertTableC(std::string filename){ //Inserimento nuova riga della tabella 
     
     // Scrivere l'intestazione (header) del CSV
     if(profile == 'G'){ //Generazione tabella riassuntiva
-        file << filename  << "," << stats_comp[0] << "," << stats_comp[1] << "," << stats_comp[2] << "\n";
+        file << filename  << "," << stats_comp[0] << "," << stats_comp[1] << "," << stats_comp[2] << ",Compared\n";
     }else if(profile == 'A'){ //Generazione tabella estesa
-        file << filename  << "," << stats_comp[0] << "," << stats_comp[1] << "," << stats_comp[2] << "," << stats_comp[3] << "," << stats_comp[4] << "\n";
+        file << filename  << "," << stats_comp[0] << "," << stats_comp[1] << "," << stats_comp[2] << "," << stats_comp[3] << "," << stats_comp[4] << ",Compared\n";
     }
         
 
@@ -485,14 +510,18 @@ int main(int argc, char* argv[]){
         return 0;
     }
 
-
     // Verifica gli argomenti passati
     if (argc > 1 && std::string(argv[1]) == "--version"){
         displayVersion();
         return 0;
     }
    
-
+    // Verifica gli argomenti passati --test
+    if (argc > 1 && std::string(argv[1]) == "--test"){
+        printGlobal();
+        return 0;
+    }
+    
     // Analizza gli argomenti della riga di comando
     for(int i = 1; i < argc; i += 2) {
         if (strcmp(argv[i], "--type") == 0) { //Tipo Di procedura da seguire
@@ -560,19 +589,19 @@ int main(int argc, char* argv[]){
             }   
         }
     }
-       
-    // Verifica gli argomenti passati
-    if (argc > 1 && std::string(argv[1]) == "--test"){
-        printGlobal();
-        return 0;
-    }
-    
+
     switch (type)
     {
     case 'C': //Inizio il comparison
         //Update stat del file originale
         updateStats(inOrigin);
+
+        //creo intestazione della nuova tabella 
         createTableC();
+
+        //inserire statistiche del file originale
+        insertTableCorigin();
+
         //per ogni file della lista di file compressi fai il confronto e scrivi in tabella
         for(size_t i = 0 ; i < inListComp.size(); i++ ){
             //inListComp[i] i-esimo file name compresso
