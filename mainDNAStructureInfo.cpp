@@ -630,18 +630,21 @@ int main(int argc, char* argv[]){
         printStats(); //print stats caricate
         printFile(outputName); //print file csv table origin        
 
-
+        /*
         //per ogni file della lista di file compressi fai il confronto e scrivi in tabella
         for(size_t i = 0 ; i < inListComp.size(); i++ ){
             //inListComp[i] i-esimo file name compresso
             updateStatsComp(inListComp[i]);
             insertTableC(inListComp[i]);
-        }
+        }*/
         break;
     case 'I': //Inizio l'individual
        
         updateStats(inOrigin);
         createTableI();
+        printStats(); //print stats caricate
+        printFile(outputName); //print file csv table origin        
+
         break;
     default:
         std::cerr << "Errore inserimento type" << std::endl;
