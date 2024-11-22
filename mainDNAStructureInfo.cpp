@@ -256,7 +256,34 @@ void printGlobal (){
 
 
 }
+void printStats(){
+    cout << "stats[0] - Entropy " << stats[0] << endl;
+    cout << "stats[1] - Local Entropy" << stats[1] << endl;
+    cout << "stats[2] - Redundancy" << stats[2] << endl;
+    cout << "stats[3] - Efficiency" << stats[3] << endl;
+    cout << "stats[4] - Tassocompressione" << stats[4] << endl;
 
+}
+void printStatsComp(){
+    cout << "stats_comp[0] - Entropy " << stats_comp[0] << endl;
+    cout << "stats_comp[1] - Local Entropy" << stats_comp[1] << endl;
+    cout << "stats_comp[2] - Redundancy" << stats_comp[2] << endl;
+    cout << "stats_comp[3] - Efficiency" << stats_comp[3] << endl;
+    cout << "stats_comp[4] - Tassocompressione" << stats_comp[4] << endl;
+}
+
+void printFile(std::string filename){
+    std::ifstream file(filename + ".csv");
+    if (!file) {
+        std::cerr << "Errore nell'aprire il file: " << filename << ".txt\n";
+        return;
+    }
+
+    std::string line;
+    while (std::getline(file, line)) {
+        std::cout << line << '\n';
+    }
+}
 
 
 double entropy(std::string inputName){ //Calcolo entropia di ordine zero di una stringa 
@@ -395,7 +422,7 @@ void createTableI(){ //Creazione tabella finale per type individual e inserirle 
         std::ofstream file(outputName+".csv");
         // Verifica se il file è stato aperto correttamente
         if (!file.is_open()) {
-            std::cerr << "Errore nell'aprire il file!" << std::endl;
+            std::cerr << "Errore nell'aprire il file" << outputName << "!" << std::endl;
         }
 
         // Scrivere l'intestazione (header) del CSV
@@ -452,18 +479,16 @@ void insertTableCorigin(){
 
     // Verifica se il file è stato aperto correttamente
     if (!file.is_open()) {
-        std::cerr << "Errore nell'aprire il file in Append Mode." << std::endl;
+        std::cerr << "Errore nell'aprire " << outputName << " in Append Mode." << std::endl;
     }
     
-    // Scrivere l'intestazione (header) del CSV
+    // Scrittura nuova riga nel CSV
     if(profile == 'G'){ //Generazione tabella riassuntiva
         file << inOrigin  << "," << stats[0] << "," << stats[1] << "," << stats[2] << ",Compared\n";
     }else if(profile == 'A'){ //Generazione tabella estesa
         file << inOrigin  << "," << stats[0] << "," << stats[1] << "," << stats[2] << "," << stats[3] << "," << stats[4] << ",Compared\n";
     }
         
-
-    // Scrivi i dati in formato CSV
    
     // Chiudi il file
     file.close();
@@ -601,6 +626,10 @@ int main(int argc, char* argv[]){
 
         //inserire statistiche del file originale
         insertTableCorigin();
+
+        printStats(); //print stats caricate
+        printFile(outputName); //print file csv table origin        
+
 
         //per ogni file della lista di file compressi fai il confronto e scrivi in tabella
         for(size_t i = 0 ; i < inListComp.size(); i++ ){
