@@ -484,9 +484,9 @@ void insertTableCorigin(){
     
     // Scrittura nuova riga nel CSV
     if(profile == 'G'){ //Generazione tabella riassuntiva
-        file << inOrigin  << "," << stats[0] << "," << stats[1] << "," << stats[2] << ",Compared\n";
+        file << inOrigin  << "," << stats[0] << "," << stats[1] << "," << stats[2] << ",Origin\n";
     }else if(profile == 'A'){ //Generazione tabella estesa
-        file << inOrigin  << "," << stats[0] << "," << stats[1] << "," << stats[2] << "," << stats[3] << "," << stats[4] << ",Compared\n";
+        file << inOrigin  << "," << stats[0] << "," << stats[1] << "," << stats[2] << "," << stats[3] << "," << stats[4] << ",Origin\n";
     }
         
    
