@@ -626,7 +626,7 @@ int main(int argc, char* argv[]){
 
         //inserire statistiche del file originale
         insertTableCorigin();
-
+        cout << "Stampe:" << endl;
         printStats(); //print stats caricate
         printFile(outputName); //print file csv table origin        
 
