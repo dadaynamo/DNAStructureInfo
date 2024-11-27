@@ -367,6 +367,7 @@ double localEntropy(){ //IMPORTANTE Da Capire
     return 1;
 }
 double redundancy(){
+    cout << (tot - tot_comp) << " " << (tot-tot_comp)/100 << " " << endl; 
     return (tot-tot_comp)/tot * 100;
 }
 double efficiency(){
