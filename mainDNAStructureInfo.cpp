@@ -371,6 +371,7 @@ double redundancy(){
     return (tot-tot_comp)/tot * 100;
 }
 double efficiency(){
+    cout << (tot_comp/tot) << " " << 1-(tot_comp/tot) << " " << endl; 
     return (1 - (tot_comp/tot)) * 100;
 }
 double tassoComp(){
