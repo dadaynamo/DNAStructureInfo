@@ -371,10 +371,10 @@ double redundancy(){
     return (tot-tot_comp)/tot * 100;
 }
 double efficiency(){
-    return (1 - tot_comp/tot) * 100;
+    return (1 - (tot_comp/tot)) * 100;
 }
 double tassoComp(){
-    return 1 - tot_comp/tot;
+    return (1 - (tot_comp/tot));
 }
 
 
