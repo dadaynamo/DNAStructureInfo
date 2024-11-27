@@ -376,9 +376,9 @@ void updateStats(std::string filename){ //Update le statistiche del file specifi
     calcFreqChar(filename);
     stats[0] = entropNeg0(); //entropy prof
     stats[1] =  0;
-    stats[2] =  1;
-    stats[3] =  2;
-    stats[4] =  3;
+    stats[2] =  0;
+    stats[3] =  0;
+    stats[4] =  0;
 
 }
 void updateStatsComp(std::string filename){ //Update delle variabili globali legate a un file compresso
@@ -615,13 +615,12 @@ int main(int argc, char* argv[]){
         printStats(); //print stats caricate
         printFile(outputName); //print file csv table origin        
 
-        /*
         //per ogni file della lista di file compressi fai il confronto e scrivi in tabella
         for(size_t i = 0 ; i < inListComp.size(); i++ ){
             //inListComp[i] i-esimo file name compresso
             updateStatsComp(inListComp[i]);
             insertTableC(inListComp[i]);
-        }*/
+        }
         break;
     case 'I': //Inizio l'individual
        
