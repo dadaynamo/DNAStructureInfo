@@ -45,8 +45,8 @@ double stats [5]; //array per contenere le stats del file individuale
 double stats_comp [5]; //array per contenere le stats del file da comparare
 
 int tot; //Dimensione del file originale
-int countA, countC, countG, countT;
-//int New_alpha_size = 4; //dimensione dell'alfabeto genomico
+int countA, countC, countG, countT, count$;
+//int New_alpha_size = 4; //dimensione dell'alfabeto genomico , 5 considerando i $
 
 int tot_comp; //dimensione totale dello specifico file da comparare
 int countA_comp, countC_comp, countG_comp, countT_comp; //frequenze di ACGT nel file da comparare
@@ -66,7 +66,7 @@ int countA_comp, countC_comp, countG_comp, countT_comp; //frequenze di ACGT nel 
     ********************************************* */
 int calcFreqChar(std::string filename){ //Dovrebbe essere una buona ottimizzazione
      // Apri il file in modalità di lettura
-    ifstream file(filename+".txt");
+    ifstream file(filename);
     if (!file.is_open()) {
         cerr << "Errore nell'apertura del file." << endl;
         return 1;
@@ -87,6 +87,9 @@ int calcFreqChar(std::string filename){ //Dovrebbe essere una buona ottimizzazio
             case 'T':
                 countT++;
                 break;
+            case '$':
+                count$++;
+                break;
         }
         tot++; // Incrementa il numero totale di caratteri letti
     }
@@ -100,34 +103,12 @@ int calcFreqChar(std::string filename){ //Dovrebbe essere una buona ottimizzazio
     nel file compresso
     ********************************************* */
 int calcFreqCharComp(std::string filename){ 
-    countA_comp = 0 , countT_comp = 0 , countC_comp = 0, countG_comp = 0 ; //reset dei contatori per sicurezza
-     // Apri il file in modalità di lettura
-    ifstream file(filename+".txt");
+    std::ifstream file(filename, std::ios::binary | std::ios::ate);
     if (!file.is_open()) {
-        cerr << "Errore nell'apertura del file." << endl;
-        return 1;
+        std::cerr << "Errore: impossibile aprire il file " << filename << " ."  << std::endl;
+        return -1; // Indica un errore
     }
-    // Leggi il file e conta la frequenza di A, C, G, T
-    char ch;
-    while (file.get(ch)) {
-        switch (ch) {
-            case 'A':
-                countA_comp++;
-                break;
-            case 'C':
-                countC_comp++;
-                break;
-            case 'G':
-                countG_comp++;
-                break;
-            case 'T':
-                countT_comp++;
-                break;
-        }
-        tot_comp++; // Incrementa il numero totale di caratteri letti
-    }
-
-    file.close(); // Chiudi il file
+    tot_comp = file.tellg(); // Restituisce la dimensione del file
     return 0;
 }
 
@@ -183,7 +164,7 @@ int displayVersion(){ //mostra la versione del progetto
 }
 
 int displayHelp() { //descrizione generale
-      std::cout << "# DNAStructureInfo" << std::endl;
+    std::cout << "# DNAStructureInfo" << std::endl;
     std::cout << "DNAStructureInfo is a C++ tool that analyzes DNA sequences, extracting key metrics like entropy, local entropy, and compressibility rate." << std::endl;
     std::cout << "It generates a summary table to help researchers and bioinformaticians better understand the complexity and structure of the DNA." << std::endl;
     std::cout << std::endl;
@@ -370,6 +351,10 @@ double entropPos0() { //USABILE
         double propT = (double)tot / countT;
         entropia += ((double)countT / tot) * (log(propT) / log(2));
     }
+    if (count$ > 0) {
+        double prop$ = (double)tot / countT;
+        entropia += ((double)count$ / tot) * (log(prop$) / log(2));
+    }
 
     return entropia;
 }
@@ -377,23 +362,23 @@ double localEntropy(){ //IMPORTANTE Da Capire
     return 1;
 }
 double redundancy(){
-    return 2.0;
+    return (tot-tot_comp)/tot * 100;
 }
 double efficiency(){
-    return 3.0;
+    return (1 - tot_comp/tot) * 100;
 }
 double tassoComp(){
-    return 4.0;
+    return 1 - tot_comp/tot;
 }
 
 
 void updateStats(std::string filename){ //Update le statistiche del file specificato
     calcFreqChar(filename);
     stats[0] = entropNeg0(); //entropy prof
-    stats[1] = entropPos0();
-    stats[2] =  redundancy();
-    stats[3] =  efficiency();
-    stats[4] =  tassoComp();
+    stats[1] =  0;
+    stats[2] =  1;
+    stats[3] =  2;
+    stats[4] =  3;
 
 }
 void updateStatsComp(std::string filename){ //Update delle variabili globali legate a un file compresso
@@ -406,7 +391,7 @@ void updateStatsComp(std::string filename){ //Update delle variabili globali leg
 
     //Aggiornamento varibili globali delle frequenze dei simboli
     calcFreqCharComp(filename);
-    stats_comp[0] = entropPos0();
+    stats_comp[0] = 0;
     stats_comp[1] = localEntropy();
     stats_comp[2] = redundancy();
     stats_comp[3] = efficiency();
