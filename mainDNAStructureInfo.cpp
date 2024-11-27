@@ -135,6 +135,10 @@ double entropNeg0() {
         double pT = (double)countT / tot;
         entropia -= pT * (log(pT) / log(2));
     }
+        if (count$ > 0) {
+        double p$ = (double)count$ / tot;
+        entropia -= p$ * (log(p$) / log(2));
+    }
 
     return entropia;
 }
@@ -147,8 +151,8 @@ double entropNeg0() {
 //*********************************************************************************** */
 
 int displayVersion(){ //mostra la versione del progetto
-       std::cout << "---------------------------------------------------" << std::endl;
-    std::cout << "                DNAStructureInfo Program                    " << std::endl;
+    std::cout << "---------------------------------------------------" << std::endl;
+    std::cout << "                DNAStructureInfo Program           " << std::endl;
     std::cout << "---------------------------------------------------" << std::endl;
     std::cout << "Versione: 1.0.0" << std::endl;
     std::cout << "Autore: Mattia Laszlo Daday" << std::endl;
@@ -158,7 +162,6 @@ int displayVersion(){ //mostra la versione del progetto
     std::cout << "extracting key metrics like entropy, local entropy, and compressibility rate." << std::endl;
     std::cout << "It generates a summary table to help researchers and bioinformaticians" << std::endl;
     std::cout << "better understand the complexity and structure of the DNA." << std::endl;
-
     std::cout << "---------------------------------------------------" << std::endl;
     return 0;
 }
@@ -240,18 +243,19 @@ void printGlobal (){
 }
 void printStats(){
     cout << "stats[0] - Entropy " << stats[0] << endl;
-    cout << "stats[1] - Local Entropy" << stats[1] << endl;
-    cout << "stats[2] - Redundancy" << stats[2] << endl;
-    cout << "stats[3] - Efficiency" << stats[3] << endl;
-    cout << "stats[4] - Tassocompressione" << stats[4] << endl;
-
+    cout << "stats[1] - Local Entropy " << stats[1] << endl;
+    cout << "stats[2] - Redundancy " << stats[2] << endl;
+    cout << "stats[3] - Efficiency " << stats[3] << endl;
+    cout << "stats[4] - Tassocompressione " << stats[4] << endl;
+    cout << tot << endl;
 }
 void printStatsComp(){
     cout << "stats_comp[0] - Entropy " << stats_comp[0] << endl;
-    cout << "stats_comp[1] - Local Entropy" << stats_comp[1] << endl;
-    cout << "stats_comp[2] - Redundancy" << stats_comp[2] << endl;
-    cout << "stats_comp[3] - Efficiency" << stats_comp[3] << endl;
-    cout << "stats_comp[4] - Tassocompressione" << stats_comp[4] << endl;
+    cout << "stats_comp[1] - Local Entropy " << stats_comp[1] << endl;
+    cout << "stats_comp[2] - Redundancy " << stats_comp[2] << endl;
+    cout << "stats_comp[3] - Efficiency " << stats_comp[3] << endl;
+    cout << "stats_comp[4] - Tassocompressione " << stats_comp[4] << endl;
+    cout << tot_comp << endl;
 }
 
 void printFile(std::string filename){
@@ -388,6 +392,7 @@ void updateStatsComp(std::string filename){ //Update delle variabili globali leg
     cout << " countC: " << countC << std::endl;
     cout << " countG: " << countG << std::endl;
     cout << " countT: " << countT << std::endl;
+    cout << " count$: " << count$ << std::endl;
     
 
     //Aggiornamento varibili globali delle frequenze dei simboli
@@ -622,6 +627,7 @@ int main(int argc, char* argv[]){
         for(size_t i = 0 ; i < inListComp.size(); i++ ){
             //inListComp[i] i-esimo file name compresso
             updateStatsComp(inListComp[i]);
+            printStatsComp();
             insertTableC(inListComp[i]);
         }
         break;
