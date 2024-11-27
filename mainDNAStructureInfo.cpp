@@ -233,7 +233,8 @@ void printGlobal (){
     for (const auto& str : inListComp) {
         std::cout << str << " ";
     }
-    cout << endl;
+
+    cout << "|" << endl;
 
 
 }
@@ -602,7 +603,9 @@ int main(int argc, char* argv[]){
 
     switch (type)
     {
-    case 'C': //Inizio il comparison
+    case 'C': 
+    printGlobal();
+    //Inizio il comparison
         //Update stat del file originale
         updateStats(inOrigin);
 
