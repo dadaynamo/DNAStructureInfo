@@ -469,9 +469,9 @@ void insertTableCorigin(){
     
     // Scrittura nuova riga nel CSV
     if(profile == 'G'){ //Generazione tabella riassuntiva
-        file << inOrigin  << "," << stats[0] << "," << stats[1] << "," << stats[2] << ",Origin\n";
+        file << inOrigin  << "," << stats[0] << "," << "-" << "," << "-" << ",Origin\n";
     }else if(profile == 'A'){ //Generazione tabella estesa
-        file << inOrigin  << "," << stats[0] << "," << stats[1] << "," << stats[2] << "," << stats[3] << "," << stats[4] << ",Origin\n";
+        file << inOrigin  << "," << stats[0] << "," << "-" << "," << "-" << "," << "-" << "," << "-" << ",Origin\n";
     }
         
    
@@ -492,9 +492,9 @@ void insertTableC(std::string filename){ //Inserimento nuova riga della tabella 
     
     // Scrivere l'intestazione (header) del CSV
     if(profile == 'G'){ //Generazione tabella riassuntiva
-        file << filename  << "," << stats_comp[0] << "," << stats_comp[1] << "," << stats_comp[2] << ",Compared\n";
+        file << filename  << "," << "-" << "," << stats_comp[1] << "," << stats_comp[2] << ",Compared\n";
     }else if(profile == 'A'){ //Generazione tabella estesa
-        file << filename  << "," << stats_comp[0] << "," << stats_comp[1] << "," << stats_comp[2] << "," << stats_comp[3] << "," << stats_comp[4] << ",Compared\n";
+        file << filename  << "," << "-" << "," << stats_comp[1] << "," << stats_comp[2] << "," << stats_comp[3] << "," << stats_comp[4] << ",Compared\n";
     }
         
 
