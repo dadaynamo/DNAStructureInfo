@@ -628,13 +628,18 @@ int main(int argc, char* argv[]){
         printFile(outputName); //print file csv table origin        
 
         //per ogni file della lista di file compressi fai il confronto e scrivi in tabella
-        for(size_t i = 0 ; i < inListComp.size(); i++ ){
+        /*for(size_t i = 0 ; i < inListComp.size(); i++ ){
             //inListComp[i] i-esimo file name compresso
             cout << "-----filename da analizzare: "<< inListComp[i] << endl;
             updateStatsComp(inListComp[i]);
             printStatsComp();
             insertTableC(inListComp[i]);
+        }*/
+        for (const auto& str : inListComp) {
+            std::cout << "Elemento: " << str << std::endl;
         }
+
+
         break;
     case 'I': //Inizio l'individual
        
