@@ -4,6 +4,7 @@
 #include <cstdlib>  // Per rand() e srand()
 #include <ctime>    // Per time()
 #include <fstream> // Libreria per la gestione dei file
+#include <sstream>
 #include <random>
 #include <vector> //Lista dinamica
 #include <unordered_map>
@@ -603,7 +604,17 @@ int main(int argc, char* argv[]){
                     if(currentvalue.rfind("--", 0) == 0){
                         break;
                     }
-                    inListComp.push_back(currentvalue);
+                    // Tokenizza se necessario (se il valore contiene spazi)
+                    if (currentvalue.find(' ') != std::string::npos) {
+                        std::istringstream stream(currentvalue);
+                        std::string token;
+                        while (stream >> token) {
+                            inListComp.push_back(token); // Aggiungi i token alla lista
+                        }
+                    } else {
+                        // Aggiungi direttamente la stringa
+                        inListComp.push_back(currentvalue);
+                    }
                 }
                 
             }   
