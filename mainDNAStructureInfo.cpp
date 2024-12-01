@@ -640,6 +640,12 @@ int main(int argc, char* argv[]){
 
         //per ogni file della lista di file compressi fai il confronto e scrivi in tabella
         for(size_t i = 0 ; i < inListComp.size(); i++ ){
+             // Controlla se il file esiste
+            std::ifstream file(inListComp[i]);
+            if (!file.is_open()) {
+                std::cout << "File " << inListComp[i] << " non trovato. Salto l'iterazione." << std::endl;
+                continue;
+            }
             //inListComp[i] i-esimo file name compresso
             cout << "-----filename da analizzare: "<< inListComp[i] << endl;
             updateStatsComp(inListComp[i]);
