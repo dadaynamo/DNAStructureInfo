@@ -103,6 +103,7 @@ int calcFreqChar(std::string filename){ //Dovrebbe essere una buona ottimizzazio
     nel file compresso
         ********************************************* */
     int calcFreqCharComp(std::string filename){ 
+        cout << "sto creando le statistiche per " << filename << endl;
         std::ifstream file(filename, std::ios::binary | std::ios::ate);
         if (!file.is_open()) {
             std::cerr << "Errore: impossibile aprire il file " << filename << "|"  << std::endl;
@@ -225,7 +226,7 @@ int displayHelp() { //descrizione generale
 }
 
 void printGlobal (){
-
+    cout << "GLOBAL ---------------------------------" << endl;
     cout << "Type " << type << endl;
     cout << "TypeIn " << typeIn << endl;
     cout << "TypeOut " << typeOut << endl;
@@ -239,6 +240,7 @@ void printGlobal (){
 
     cout << "|" << endl;
 
+    cout << "-----------------------------------------" << endl;
 
 }
 void printStats(){
@@ -367,11 +369,11 @@ double localEntropy(){ //IMPORTANTE Da Capire
     return 1;
 }
 double redundancy(){
-    cout << (tot - tot_comp) << " " << (tot-tot_comp)/100 << " " << endl; 
+    cout << "redundancy "<< (tot - tot_comp) << " " << (tot-tot_comp)/100 << " " << endl; 
     return (tot-tot_comp)/tot * 100;
 }
 double efficiency(){
-    cout << (tot_comp/tot) << " " << 1-(tot_comp/tot) << " " << endl; 
+    cout << "Efficiency " << (tot_comp/tot) << " " << 1-(tot_comp/tot) << " " << endl; 
     return (1 - (tot_comp/tot)) * 100;
 }
 double tassoComp(){
@@ -628,6 +630,7 @@ int main(int argc, char* argv[]){
         //per ogni file della lista di file compressi fai il confronto e scrivi in tabella
         for(size_t i = 0 ; i < inListComp.size(); i++ ){
             //inListComp[i] i-esimo file name compresso
+            cout << "-----filename da analizzare: "<< inListComp[i] << endl;
             updateStatsComp(inListComp[i]);
             printStatsComp();
             insertTableC(inListComp[i]);
