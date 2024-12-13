@@ -37,6 +37,7 @@ char typeIn;  // E -> .eds, T -> .txt
 char typeOut = 'C'; // C -> .csv, T -> .txt
 std::string outputName; //file name senza estensione
 std::string inOrigin; //Nome file Originale
+std::string inComp; //Nome file da confrontare
 
 int tot; //Dimensione del file originale
 int countA, countC, countG, countT, count$;
@@ -317,19 +318,12 @@ double entropPos0() { //USABILE
 
     return entropia;
 }
+
 double localEntropy(){ //IMPORTANTE Da Capire
-    return 1;
-}
-double redundancy(){
-   // cout << "redundancy "<< (tot - tot_comp) << " " << (tot-tot_comp)/100 << " " << endl; 
-  //  return (tot-tot_comp)/tot * 100;
-}
-double efficiency(){
-  //  cout << "Efficiency " << (tot_comp/tot) << " " << 1-(tot_comp/tot) << " " << endl; 
-  //  return (1 - (tot_comp/tot)) * 100;
+    return 1.0;
 }
 double tassoComp(){
-   // return (1 - (tot_comp/tot));
+   return 1.0;
 }
 
 
@@ -349,7 +343,7 @@ void createTableI(){ //Creazione tabella finale per type individual e inserirle 
             std::cerr << "Errore nell'aprire il file" << outputName << "!" << std::endl;
         }
 
-        file << "Filename,Entropy,LocalEntropy,Redundancy,Efficiency,TassoCompressione" << std::endl;
+        file << "Filename,Entropy,LocalEntropy,Tasso di Run" << std::endl;
 
         
         file.close();
@@ -372,7 +366,7 @@ void createTableC(){ //creazione intestazione della tabella nel file per type co
         if (!file.is_open()) {
             std::cerr << "Errore nell'aprire il file!" << std::endl;
         }
-        file << "Filename,Entropy,LocalEntropy,Redundancy,Efficiency,TassoCompressione,Type" << std::endl;
+        file << "Filename,Rapporto Compressione" << std::endl;
         
         
         file.close();
@@ -383,6 +377,46 @@ void createTableC(){ //creazione intestazione della tabella nel file per type co
         std::cout << "Da implementare!" << std::endl;
         
     }
+}
+
+void insertTableC(){ //Inserimento nuova riga della tabella nel file per type comparison 
+
+    // Apri il file in modalità append
+    std::ofstream file;
+    file.open(outputName+".csv", std::ios::app);
+
+    // Verifica se il file è stato aperto correttamente
+    if (!file.is_open()) {
+        std::cerr << "Errore nell'aprire il file in Append Mode." << std::endl;
+    }
+   
+    file << inOrigin << "-" << inComp  << "," << 1.0 << endl;
+    
+    // Chiudi il file
+    file.close();
+    std::cout << "Nuova riga aggiunta con successo!" << std::endl;
+}
+
+void insertTableI(){ //Inserimento nuova riga della tabella nel file per type comparison 
+
+    // Apri il file in modalità append
+    std::ofstream file;
+    file.open(outputName+".csv", std::ios::app);
+
+    // Verifica se il file è stato aperto correttamente
+    if (!file.is_open()) {
+        std::cerr << "Errore nell'aprire il file in Append Mode." << std::endl;
+    }
+    
+  
+    file << inOrigin << "," << 1.0 << "," << 2.0 << "," << 3.0 << endl;
+        
+
+    // Scrivi i dati in formato CSV
+   
+    // Chiudi il file
+    file.close();
+    std::cout << "Nuova riga aggiunta con successo!" << std::endl;
 }
 
 //MAIN ----------------------------------------------------------------
@@ -448,26 +482,38 @@ int main(int argc, char* argv[]){
             if (i + 1 < argc) {
                 inOrigin = argv[i + 1]; // Nome file input senza estensione
             }   
+        }else if (strcmp(argv[i], "--inComp") == 0) {
+            if (i + 1 < argc) {
+                inComp = argv[i + 1]; // Nome file input senza estensione
+            }   
         }
     }
-
+/*
     if(outputName == "") cout << "Non hai inserito il nome del file di output. Riprovare!!" <<endl;
     //if(inOrigin == "") cout << "Non hai inserito il nome del file di input. Riprovare!!" <<endl;
     if(typeOut == '\0') typeOut = 'C';
-    
+    if(type == "C"){
+        if(inOrigin == "" || inComp == ""){
+            cout << "Errore. non hai inserito i filename di input o output" << endl;
+            return 1;
+        }   
+    }
+  */  
 
-    printGlobal();
+    //printGlobal();
 
-    if (type == "H") {
+    if (type == "I") {
+        insertTableI();
         std::cout << "Hai scelto H." << std::endl;
     } else if (type == "C") {
+        insertTableC();
         std::cout << "Hai scelto C." << std::endl;
     } else if (type == "HI") {
         std::cout << "Creo Header per individual." << std::endl;
         createTableI();
     } else if (type == "HC") {
         std::cout << "Creo Header per comparison." << std::endl;
-        createTableI();
+        createTableC();
     } else {
         std::cerr << "Errore inserimento type" << std::endl;
         return 1;
@@ -475,6 +521,7 @@ int main(int argc, char* argv[]){
 
     
     cout << "Fine prog" << endl;
+
 
     return 0;
 
