@@ -208,11 +208,6 @@ void printGlobal (){
     cout << "TypeOut " << typeOut << endl;
     cout << "inOrigin " << inOrigin << endl;
     cout << "outputName " << outputName << endl;
-    cout << "inListComp ";
-
-
-    cout << "|" << endl;
-
     cout << "-----------------------------------------" << endl;
 
 }
@@ -343,30 +338,22 @@ void updateStats(std::string filename){ //Update le statistiche del file specifi
 }
 
 /* ***************************************
-    Calcolo tabella e stampa nel file
+    Calcolo Header tabella per individual e stampa nel file
     ************************************** */
-/*
 void createTableI(){ //Creazione tabella finale per type individual e inserirle nel file
     if(typeOut == 'C'){ //creazione file .csv
         // Creazione di un oggetto ofstream per scrivere nel file CSV
-        std::ofstream file(outputName+".csv");
+        std::ofstream file(outputName+".csv", std::ios::app);
         // Verifica se il file è stato aperto correttamente
         if (!file.is_open()) {
             std::cerr << "Errore nell'aprire il file" << outputName << "!" << std::endl;
         }
 
-        // Scrivere l'intestazione (header) del CSV
-        if(profile == 'G'){ //Generazione tabella riassuntiva
-            file << "Filename,Entropy,LocalEntropy" << std::endl;
-            file << inOrigin << "," << stats[0] << "," << stats[1] <<std::endl;
+        file << "Filename,Entropy,LocalEntropy,Redundancy,Efficiency,TassoCompressione" << std::endl;
 
-        }else if(profile == 'A'){ //Generazione tabella estesa
-            file << "Filename,Entropy,LocalEntropy,Redundancy,Efficiency,TassoCompressione" << std::endl;
-            file << inOrigin << "," << stats[0] << "," << stats[1] << "," << stats[2] << "," << stats[3] << "," << stats[4] <<std::endl;
-        }
         
         file.close();
-        std::cout << "File CSV creato con successo!" << std::endl;
+        std::cout << "Header Individual CSV creato con successo!" << std::endl;
    
         
     }else if(typeOut == 'T'){ //creazione file .txt
@@ -374,25 +361,22 @@ void createTableI(){ //Creazione tabella finale per type individual e inserirle 
         
     }
 }
-
+/* ***************************************
+    Calcolo Header tabella per comparison e stampa nel file
+    ************************************** */
 void createTableC(){ //creazione intestazione della tabella nel file per type comparison 
   if(typeOut == 'C'){ //creazione file .csv
         // Creazione di un oggetto ofstream per scrivere nel file CSV
-        std::ofstream file(outputName+".csv");
+        std::ofstream file(outputName+".csv", std::ios::app);
         // Verifica se il file è stato aperto correttamente
         if (!file.is_open()) {
             std::cerr << "Errore nell'aprire il file!" << std::endl;
         }
-
-        // Scrivere l'intestazione (header) del CSV
-        if(profile == 'G'){ //Generazione tabella riassuntiva
-            file << "Filename,Entropy,LocalEntropy,Type" << std::endl;
-        }else if(profile == 'A'){ //Generazione tabella estesa
-            file << "Filename,Entropy,LocalEntropy,Redundancy,Efficiency,TassoCompressione,Type" << std::endl;
-        }
+        file << "Filename,Entropy,LocalEntropy,Redundancy,Efficiency,TassoCompressione,Type" << std::endl;
+        
         
         file.close();
-        std::cout << "Intestazione tabella nel File CSV creato con successo!" << std::endl;
+        std::cout << "Header Comparison CSV creato con successo!" << std::endl;
    
         
     }else if(typeOut == 'T'){ //creazione file .txt
@@ -401,55 +385,6 @@ void createTableC(){ //creazione intestazione della tabella nel file per type co
     }
 }
 
-void insertTableCorigin(){
-
-    // Apri il file in modalità append
-    std::ofstream file;
-    file.open(outputName+".csv", std::ios::app);
-
-    // Verifica se il file è stato aperto correttamente
-    if (!file.is_open()) {
-        std::cerr << "Errore nell'aprire " << outputName << " in Append Mode." << std::endl;
-    }
-    
-    // Scrittura nuova riga nel CSV
-    if(profile == 'G'){ //Generazione tabella riassuntiva
-        file << inOrigin  << "," << stats[0] << "," << "-" << "," << "-" << ",Origin\n";
-    }else if(profile == 'A'){ //Generazione tabella estesa
-        file << inOrigin  << "," << stats[0] << "," << "-" << "," << "-" << "," << "-" << "," << "-" << ",Origin\n";
-    }
-        
-   
-    // Chiudi il file
-    file.close();
-    std::cout << "Nuova riga aggiunta con successo!" << std::endl;    
-}
-void insertTableC(std::string filename){ //Inserimento nuova riga della tabella nel file per type comparison 
-
-    // Apri il file in modalità append
-    std::ofstream file;
-    file.open(outputName+".csv", std::ios::app);
-
-    // Verifica se il file è stato aperto correttamente
-    if (!file.is_open()) {
-        std::cerr << "Errore nell'aprire il file in Append Mode." << std::endl;
-    }
-    
-    // Scrivere l'intestazione (header) del CSV
-    if(profile == 'G'){ //Generazione tabella riassuntiva
-        file << filename  << "," << "-" << "," << stats_comp[1] << "," << stats_comp[2] << ",Compared\n";
-    }else if(profile == 'A'){ //Generazione tabella estesa
-        file << filename  << "," << "-" << "," << stats_comp[1] << "," << stats_comp[2] << "," << stats_comp[3] << "," << stats_comp[4] << ",Compared\n";
-    }
-        
-
-    // Scrivi i dati in formato CSV
-   
-    // Chiudi il file
-    file.close();
-    std::cout << "Nuova riga aggiunta con successo!" << std::endl;
-}
-*/
 //MAIN ----------------------------------------------------------------
 int main(int argc, char* argv[]){
 
@@ -516,15 +451,23 @@ int main(int argc, char* argv[]){
         }
     }
 
+    if(outputName == "") cout << "Non hai inserito il nome del file di output. Riprovare!!" <<endl;
+    //if(inOrigin == "") cout << "Non hai inserito il nome del file di input. Riprovare!!" <<endl;
+    if(typeOut == '\0') typeOut = 'C';
+    
+
+    printGlobal();
 
     if (type == "H") {
         std::cout << "Hai scelto H." << std::endl;
     } else if (type == "C") {
         std::cout << "Hai scelto C." << std::endl;
     } else if (type == "HI") {
-        std::cout << "Hai scelto HI." << std::endl;
+        std::cout << "Creo Header per individual." << std::endl;
+        createTableI();
     } else if (type == "HC") {
-        std::cout << "Hai scelto HC." << std::endl;
+        std::cout << "Creo Header per comparison." << std::endl;
+        createTableI();
     } else {
         std::cerr << "Errore inserimento type" << std::endl;
         return 1;
