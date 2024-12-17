@@ -122,10 +122,6 @@ double entropNeg0() {
 }
 
 
-
-
-
-
 //*********************************************************************************** */
 
 int displayVersion(){ //mostra la versione del progetto
@@ -326,6 +322,32 @@ double tassoComp(){
    return 1.0;
 }
 
+double rapportoRun(){
+    double count = 0;
+    double nrun=0;
+    char punt = ' ';
+    char c;
+    double rapport;
+    //prendi il primo carattere
+    std::ifstream file(inOrigin); // Apri il file in modalità testo
+    if (!file.is_open()) {
+        std::cerr << "Errore: impossibile aprire il file " << inOrigin << std::endl;
+  
+    }
+    
+    while (file.get(c)) { // Legge un carattere alla volta
+        std::cout << c<< endl; // Stampa il carattere
+           count++;
+        if(punt != c){
+            nrun++;
+            punt=c;
+        }  
+        cout << count << " " << nrun << endl;
+    }
+    rapport = nrun / count ;
+    cout << "rapporto run: " << nrun/count << endl;
+    return rapport;
+}
 
 void updateStats(std::string filename){ //Update le statistiche del file specificato
     calcFreqChar(filename);
@@ -399,6 +421,7 @@ void insertTableC(){ //Inserimento nuova riga della tabella nel file per type co
 
 void insertTableI(){ //Inserimento nuova riga della tabella nel file per type comparison 
 
+    updateStats(inOrigin);
     // Apri il file in modalità append
     std::ofstream file;
     file.open(outputName+".csv", std::ios::app);
@@ -409,7 +432,7 @@ void insertTableI(){ //Inserimento nuova riga della tabella nel file per type co
     }
     
   
-    file << inOrigin << "," << 1.0 << "," << 2.0 << "," << 3.0 << endl;
+    file << inOrigin << "," << entropPos0() << "," << 2.0 << "," << rapportoRun() << endl;
         
 
     // Scrivi i dati in formato CSV
