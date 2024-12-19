@@ -11,21 +11,6 @@
 #include <cstdint> // Per int64_t
 #include <cmath> // Necessario per le funzioni logaritmiche
 
-/*
-Table Output
-|------------------------------------------------------------------------------------------------|
-| Filename    | Entropy     | LocalEnt    | Redundancy  | Efficiency | TassoComp   | TYPE        |
-|------------------------------------------------------------------------------------------------|
-| file1       | 1.78        | 1.5         | 104.4       | 0.5        | 0.1         | Original    |
-|-------------|-------------|-------------|-------------|------------|-------------|-------------|
-| file2       | 1.78        | 1.5         | 104.4       | 0.5        | 0.5         | Comparison  |
-|-------------|-------------|-------------|-------------|------------|-------------|-------------|
-| file3       | 1.78        | 1.5         | 104.4       | 0.5        | 0.5         | Comparison  |
-|-------------|-------------|-------------|-------------|------------|-------------|-------------|
-| file4       | 1.78        | 1.5         | 104.4       | 0.5        | 0.5         | Comparison  |
-|------------------------------------------------------------------------------------------------|
-
-*/
 using namespace std;
 
 //MACROS -------------------------------------------------------------
@@ -87,38 +72,6 @@ int calcFreqChar(std::string filename){ //Dovrebbe essere una buona ottimizzazio
 
     file.close(); // Chiudi il file
     return 0;
-}
-
-
-//Funzione di entropie simili (sceglierne una sola)
-
-// Funzione per calcolare l'entropia negativa (entropia di Shannon)
-double entropNeg0() {
-    double entropia = 0.0;
-
-    // Frequenze relative per ciascuna lettera (A, C, G, T)
-    if (countA > 0) {
-        double pA = (double)countA / tot;
-        entropia -= pA * (log(pA) / log(2));
-    }
-    if (countC > 0) {
-        double pC = (double)countC / tot;
-        entropia -= pC * (log(pC) / log(2));
-    }
-    if (countG > 0) {
-        double pG = (double)countG / tot;
-        entropia -= pG * (log(pG) / log(2));
-    }
-    if (countT > 0) {
-        double pT = (double)countT / tot;
-        entropia -= pT * (log(pT) / log(2));
-    }
-        if (count$ > 0) {
-        double p$ = (double)count$ / tot;
-        entropia -= p$ * (log(p$) / log(2));
-    }
-
-    return entropia;
 }
 
 
@@ -315,11 +268,99 @@ double entropPos0() { //USABILE
     return entropia;
 }
 
-double localEntropy(){ //IMPORTANTE Da Capire
-    return 1.0;
+
+double localEntropy (std::vector<uint32_t>& codDist, int n){
+    double LE;
+    double sum = 0;
+    for (int i = 0; i < n; ++i) {
+        sum += std::log2(codDist[i] + 1); // log base 2
+
+        cout << "VAL: "<< codDist[i] << " LOG: "  <<std::log2(codDist[i] + 1)<<endl;
+        cout << "SUM parziale: " <<  sum <<endl;
+    }
+    LE = sum/n;
+    return LE;
 }
+
+double calcLE(){
+    
+    std::ifstream inputFile(inOrigin);
+    if (!inputFile) {
+        std::cerr << "Errore nell'apertura del file: " << inOrigin << std::endl;
+        return 1;
+    }
+    // Posizionamento del cursore all'inizio del file
+    inputFile.seekg(0, std::ios::beg);  // Posiziona il cursore di lettura all'inizio
+    
+    // Leggi il file
+    std::vector<char> sequence;
+    char c;
+    while (inputFile.get(c)) {
+        if (c == 'A' || c == 'C' || c == 'G' || c == 'T') {
+            sequence.push_back(c);
+        } else {
+            std::cerr << "Carattere non valido trovato: " << c << std::endl;
+            return 1;
+        }
+    }
+    inputFile.close();
+
+    int n = sequence.size();
+    std::vector<uint32_t> codDist(n, 0);
+
+    // Calcola il Distance Code
+    distance_encode(sequence, codDist, n);
+    double LE = localEntropy(codDist,n);
+    return LE;
+}
+void distance_encode(const std::vector<char>& t, std::vector<uint32_t>& codDist, int n) {
+    std::unordered_map<char, int> posMap;
+
+    for (int i = n - 1; i >= 0; --i) {
+        char symbol = t[i];
+        if (posMap.find(symbol) == posMap.end()) {
+            // Simbolo visto per la prima volta
+            posMap[symbol] = i;
+        } else {
+            // Calcola la distanza e aggiorna la posizione
+            int prevPos = posMap[symbol];
+            posMap[symbol] = i;
+            codDist[prevPos] = prevPos - i - 1; // Distanza tra due occorrenze
+        }
+    }
+
+    // Gestione simboli unici o non completati
+    for (const auto& pair : posMap) {
+        codDist[pair.second] = pair.second;
+    }
+}
+
 double tassoComp(){
-   return 1.0;
+  // Apertura del file originale per ottenere la sua dimensione
+    std::ifstream fileOrig(inOrigin, std::ios::binary | std::ios::ate);  // Modalità binaria per evitare errori
+    if (!fileOrig.is_open()) {
+        std::cerr << "Impossibile aprire il file originale!" << std::endl;
+        return -1.0;
+    }
+    std::streampos sizeOriginale = fileOrig.tellg();
+    fileOrig.close();
+
+    // Apertura del file compresso per ottenere la sua dimensione
+    std::ifstream fileComp(inComp, std::ios::binary | std::ios::ate);  // Modalità binaria
+    if (!fileComp.is_open()) {
+        std::cerr << "Impossibile aprire il file compresso!" << std::endl;
+        return -1.0;
+    }
+    std::streampos sizeCompresso = fileComp.tellg();
+    fileComp.close();
+
+    // Calcolo del tasso di compressione
+    if (sizeCompresso == 0) {
+        std::cerr << "Errore: il file compresso è vuoto." << std::endl;
+        return -1.0;
+    }
+
+    return static_cast<double>(sizeOriginale) / static_cast<double>(sizeCompresso);
 }
 
 double rapportoRun(){
@@ -412,7 +453,7 @@ void insertTableC(){ //Inserimento nuova riga della tabella nel file per type co
         std::cerr << "Errore nell'aprire il file in Append Mode." << std::endl;
     }
    
-    file << inOrigin << "-" << inComp  << "," << 1.0 << endl;
+    file << inOrigin << "-" << inComp  << "," << tassoComp() << endl;
     
     // Chiudi il file
     file.close();
@@ -432,7 +473,7 @@ void insertTableI(){ //Inserimento nuova riga della tabella nel file per type co
     }
     
   
-    file << inOrigin << "," << entropPos0() << "," << 2.0 << "," << rapportoRun() << endl;
+    file << inOrigin << "," << entropPos0() << "," << calcLE() << "," << rapportoRun() << endl;
         
 
     // Scrivi i dati in formato CSV
