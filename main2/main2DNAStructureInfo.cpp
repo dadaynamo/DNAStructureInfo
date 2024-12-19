@@ -281,7 +281,27 @@ double localEntropy (std::vector<uint32_t>& codDist, int n){
     LE = sum/n;
     return LE;
 }
+void distance_encode(const std::vector<char>& t, std::vector<uint32_t>& codDist, int n) {
+    std::unordered_map<char, int> posMap;
 
+    for (int i = n - 1; i >= 0; --i) {
+        char symbol = t[i];
+        if (posMap.find(symbol) == posMap.end()) {
+            // Simbolo visto per la prima volta
+            posMap[symbol] = i;
+        } else {
+            // Calcola la distanza e aggiorna la posizione
+            int prevPos = posMap[symbol];
+            posMap[symbol] = i;
+            codDist[prevPos] = prevPos - i - 1; // Distanza tra due occorrenze
+        }
+    }
+
+    // Gestione simboli unici o non completati
+    for (const auto& pair : posMap) {
+        codDist[pair.second] = pair.second;
+    }
+}
 double calcLE(){
     
     std::ifstream inputFile(inOrigin);
@@ -313,27 +333,7 @@ double calcLE(){
     double LE = localEntropy(codDist,n);
     return LE;
 }
-void distance_encode(const std::vector<char>& t, std::vector<uint32_t>& codDist, int n) {
-    std::unordered_map<char, int> posMap;
 
-    for (int i = n - 1; i >= 0; --i) {
-        char symbol = t[i];
-        if (posMap.find(symbol) == posMap.end()) {
-            // Simbolo visto per la prima volta
-            posMap[symbol] = i;
-        } else {
-            // Calcola la distanza e aggiorna la posizione
-            int prevPos = posMap[symbol];
-            posMap[symbol] = i;
-            codDist[prevPos] = prevPos - i - 1; // Distanza tra due occorrenze
-        }
-    }
-
-    // Gestione simboli unici o non completati
-    for (const auto& pair : posMap) {
-        codDist[pair.second] = pair.second;
-    }
-}
 
 double tassoComp(){
   // Apertura del file originale per ottenere la sua dimensione
