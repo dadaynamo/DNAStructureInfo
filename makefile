@@ -1,49 +1,19 @@
-# Nome del programma eseguibile
-TARGET = mainDNAStructureInfo
-
-# Compilatore
+# Variabili
 CXX = g++
+CXXFLAGS = -Wall -Wextra -O2
+TARGET = main2DNAStructureInfo
+SRC = main2DNAStructureInfo.cpp
 
-# Opzioni di compilazione
-CXXFLAGS = -Wall -Wextra -std=c++11
-
-# File sorgente
-SRCS = mainDNAStructureInfo.cpp
-
-# Regola di compilazione
+# Obiettivo principale
 all: $(TARGET)
 
-$(TARGET): $(SRCS)
-	$(CXX) $(CXXFLAGS) -o $(TARGET) $(SRCS)
+# Regola per creare l'eseguibile
+$(TARGET): $(SRC)
+	$(CXX) $(CXXFLAGS) -o $(TARGET) $(SRC)
 
-# Regola per eseguire il programma con parametri passati
-# Regola per eseguire il programma con parametri
-comparison: $(TARGET)
-	@read -p "Enter typeIn [E, T]: " typeIn; \
-	read -p "Enter typeOut [C, T]: " typeOut; \
-	read -p "Enter profile [A, G]: " profile; \
-	read -p "Enter inOrigin: " inOrigin; \
-	read -p "Enter outputName: " outputName; \
-	read -p "Enter inListComp: " inListComp; \
-	./$(TARGET) --type C --typeIn $$typeIn --typeOut $$typeOut --profile $$profile --inOrigin $$inOrigin --outputName $$outputName --inListComp $$inListComp
-
-individual : $(TARGET)
-	@read -p "Enter typeIn [E, T]: " typeIn; \
-	read -p "Enter typeOut [C, T]: " typeOut; \
-	read -p "Enter profile [A, G]: " profile; \
-	read -p "Enter inOrigin: " inOrigin; \
-	read -p "Enter outputName: " outputName; \
-	read -p "Enter inListComp: " inListComp; \
-	./$(TARGET) --type I --typeIn $$typeIn --typeOut $$typeOut --profile $$profile --inOrigin $$inOrigin --outputName $$outputName
-
-# DA FARE COMPARISON E INDIVIDUAL. NON UTILIZZARE ANCORA
-
-help: $(TARGET)
-	./$(TARGET) --help
-
-version: $(TARGET)
-	./$(TARGET) --version
-
-# Pulire i file oggetto e l'eseguibile
+# Pulizia dei file generati
 clean:
 	rm -f $(TARGET)
+	rm -f *.o
+
+.PHONY: all clean
