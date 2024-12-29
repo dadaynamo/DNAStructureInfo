@@ -74,7 +74,9 @@ int calcFreqChar(std::string filename){ //Dovrebbe essere una buona ottimizzazio
     return 0;
 }
 
-
+void updateStats(std::string filename){ //Update le statistiche del file specificato
+    calcFreqChar(filename);
+}
 //*********************************************************************************** */
 
 int displayVersion(){ //mostra la versione del progetto
@@ -316,7 +318,7 @@ double calcLE(){
     std::vector<char> sequence;
     char c;
     while (inputFile.get(c)) {
-        if (c == 'A' || c == 'C' || c == 'G' || c == 'T') {
+        if (c == 'A' || c == 'C' || c == 'G' || c == 'T' || c == '$') {
             sequence.push_back(c);
         } else {
             std::cerr << "Carattere non valido trovato: " << c << std::endl;
@@ -390,9 +392,7 @@ double rapportoRun(){
     return rapport;
 }
 
-void updateStats(std::string filename){ //Update le statistiche del file specificato
-    calcFreqChar(filename);
-}
+
 
 /* ***************************************
     Calcolo Header tabella per individual e stampa nel file
@@ -418,6 +418,31 @@ void createTableI(){ //Creazione tabella finale per type individual e inserirle 
         
     }
 }
+
+void insertTableI(){ //Inserimento nuova riga della tabella nel file per type comparison 
+
+    updateStats(inOrigin);
+    // Apri il file in modalità append
+    std::ofstream file;
+    file.open(outputName+".csv", std::ios::app);
+
+    // Verifica se il file è stato aperto correttamente
+    if (!file.is_open()) {
+        std::cerr << "Errore nell'aprire il file in Append Mode." << std::endl;
+    }
+    
+  
+    file << inOrigin << "," << entropPos0() << "," << calcLE() << "," << rapportoRun() << endl;
+        
+
+    // Scrivi i dati in formato CSV
+   
+    // Chiudi il file
+    file.close();
+    std::cout << "Nuova riga aggiunta con successo!" << std::endl;
+}
+
+
 /* ***************************************
     Calcolo Header tabella per comparison e stampa nel file
     ************************************** */
@@ -460,28 +485,7 @@ void insertTableC(){ //Inserimento nuova riga della tabella nel file per type co
     std::cout << "Nuova riga aggiunta con successo!" << std::endl;
 }
 
-void insertTableI(){ //Inserimento nuova riga della tabella nel file per type comparison 
 
-    updateStats(inOrigin);
-    // Apri il file in modalità append
-    std::ofstream file;
-    file.open(outputName+".csv", std::ios::app);
-
-    // Verifica se il file è stato aperto correttamente
-    if (!file.is_open()) {
-        std::cerr << "Errore nell'aprire il file in Append Mode." << std::endl;
-    }
-    
-  
-    file << inOrigin << "," << entropPos0() << "," << calcLE() << "," << rapportoRun() << endl;
-        
-
-    // Scrivi i dati in formato CSV
-   
-    // Chiudi il file
-    file.close();
-    std::cout << "Nuova riga aggiunta con successo!" << std::endl;
-}
 
 //MAIN ----------------------------------------------------------------
 int main(int argc, char* argv[]){
@@ -565,6 +569,19 @@ int main(int argc, char* argv[]){
   */  
 
     //printGlobal();
+
+/*
+
+ATTRIBUTI:
+--type I C HI HC
+--typeOut C T
+--outputName string
+--inOrigin string
+--inComp string
+
+*/
+
+
 
     if (type == "I") {
         insertTableI();
