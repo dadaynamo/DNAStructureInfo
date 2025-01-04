@@ -363,6 +363,8 @@ double tassoComp(){
         std::cerr << "Errore: il file compresso è vuoto." << std::endl;
         return -1.0;
     }
+    cout << "dimensione inOrigin " << sizeOriginale << ". dimensione inComp " << sizeCompresso << endl;
+    cout << "tasso compressione = " << static_cast<double>(sizeOriginale) / static_cast<double>(sizeCompresso) <<endl;
 
     return static_cast<double>(sizeOriginale) / static_cast<double>(sizeCompresso);
 }
