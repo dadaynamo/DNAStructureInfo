@@ -277,8 +277,8 @@ double localEntropy (std::vector<uint32_t>& codDist, int n){
     for (int i = 0; i < n; ++i) {
         sum += std::log2(codDist[i] + 1); // log base 2
 
-        cout << "VAL: "<< codDist[i] << " LOG: "  <<std::log2(codDist[i] + 1)<<endl;
-        cout << "SUM parziale: " <<  sum <<endl;
+       // cout << "VAL: "<< codDist[i] << " LOG: "  <<std::log2(codDist[i] + 1)<<endl;
+       // cout << "SUM parziale: " <<  sum <<endl;
     }
     LE = sum/n;
     return LE;
