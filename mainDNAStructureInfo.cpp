@@ -243,6 +243,8 @@ double entropy(std::string inputName){ //Calcolo entropia di ordine zero di una 
 /* DA IMPLEMENTARE*/
 // Funzione per calcolare l'entropia positiva
 double entropPos0() { //USABILE
+
+    cout << countA << " " << countC << " " << countG << " " << countT << " " <<endl;
     double entropia = 0.0;
 
     // Entropia positiva per ciascuna lettera (A, C, G, T)
