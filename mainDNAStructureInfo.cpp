@@ -379,13 +379,13 @@ double rapportoRun(){
     }
     
     while (file.get(c)) { // Legge un carattere alla volta
-        std::cout << c<< endl; // Stampa il carattere
+        //std::cout << c<< endl; // Stampa il carattere
            count++;
         if(punt != c){
             nrun++;
             punt=c;
         }  
-        cout << count << " " << nrun << endl;
+        //cout << count << " " << nrun << endl;
     }
     rapport = nrun / count ;
     cout << "rapporto run: " << nrun/count << endl;
