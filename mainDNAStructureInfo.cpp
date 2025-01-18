@@ -371,7 +371,7 @@ double tassoComp(){
 
 double rapportoRun(){
     int count = 0;
-    double nrun=0;
+    int nrun=0;
     char punt = ' ';
     char c;
     double rapport;
@@ -391,7 +391,7 @@ double rapportoRun(){
         }  
         //cout << count << " " << nrun << endl;
     }
-    rapport = nrun / count ;
+    rapport = static_cast<double>(nrun) / count;
     cout <<"numero run " << nrun<< " Dim: " << count << " , rapporto run: " << nrun/count << endl;
     return rapport;
 }
