@@ -379,6 +379,7 @@ double tassoComp(){
     return static_cast<double>(sizeOriginale) / static_cast<double>(sizeCompresso);
 }
 
+
 double rapportoRun(){
     int count = 0;
     int nrun=0;
