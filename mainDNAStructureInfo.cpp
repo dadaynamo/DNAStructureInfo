@@ -370,7 +370,7 @@ double tassoComp(){
 }
 
 double rapportoRun(){
-    double count = 0;
+    int count = 0;
     double nrun=0;
     char punt = ' ';
     char c;
