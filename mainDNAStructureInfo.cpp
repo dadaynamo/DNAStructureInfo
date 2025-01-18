@@ -25,7 +25,7 @@ std::string inOrigin; //Nome file Originale
 std::string inComp; //Nome file da confrontare
 
 int tot; //Dimensione del file originale
-int countA, countC, countG, countT, count$;
+int countA, countC, countG, countT, count$, countH;
 //int New_alpha_size = 4; //dimensione dell'alfabeto genomico , 5 considerando i $
 
 //FUNCTIONS ----------------------------------------------------------
@@ -65,6 +65,9 @@ int calcFreqChar(std::string filename){ //Dovrebbe essere una buona ottimizzazio
                 break;
             case '$':
                 count$++;
+                break;
+            case '#':
+                countH++;
                 break;
         }
         tot++; // Incrementa il numero totale di caratteri letti
@@ -182,7 +185,7 @@ double entropy(std::string inputName){ //Calcolo entropia di ordine zero di una 
     
     double entropy = 0.0;
 
-    std::int64_t countA = 0, countC = 0, countG = 0, countT = 0; //contatori occorrenze
+    std::int64_t countA = 0, countC = 0, countG = 0, countT = 0, countH = 0; //contatori occorrenze
     const std::size_t bufferSize = 1024 * 1024; // 1 MB buffer
     char buffer[bufferSize];  // Buffer temporaneo per leggere il file
     
@@ -213,6 +216,9 @@ double entropy(std::string inputName){ //Calcolo entropia di ordine zero di una 
                     break;
                 case 'T':
                     ++countT;
+                    break;
+                case '#':
+                    ++countH;
                     break;
             }
         }
@@ -268,6 +274,10 @@ double entropPos0() { //USABILE
         double prop$ = (double)tot / countT;
         entropia += ((double)count$ / tot) * (log(prop$) / log(2));
     }
+    if (countH > 0) {
+        double propH = (double)tot / countH;
+        entropia += ((double)countH / tot) * (log(propH) / log(2));
+    }
 
     return entropia;
 }
@@ -320,7 +330,7 @@ double calcLE(){
     std::vector<char> sequence;
     char c;
     while (inputFile.get(c)) {
-        if (c == 'A' || c == 'C' || c == 'G' || c == 'T' || c == '$') {
+        if (c == 'A' || c == 'C' || c == 'G' || c == 'T' || c == '$' || c == '#') {
             sequence.push_back(c);
         } else {
             std::cerr << "Carattere non valido trovato: " << c << std::endl;
