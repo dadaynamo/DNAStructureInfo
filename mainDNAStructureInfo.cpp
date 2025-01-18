@@ -392,7 +392,7 @@ double rapportoRun(){
         //cout << count << " " << nrun << endl;
     }
     rapport = nrun / count ;
-    cout <<"numero run " << nrun<< ", rapporto run: " << nrun/count << endl;
+    cout <<"numero run " << nrun<< " Dim: " << count << " , rapporto run: " << nrun/count << endl;
     return rapport;
 }
 
