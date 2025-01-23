@@ -330,7 +330,7 @@ double calcLE(){
     std::vector<char> sequence;
     char c;
     while (inputFile.get(c)) {
-        if (c == 'A' || c == 'C' || c == 'G' || c == 'T' || c == '$' || c == '#') {
+        if (c == 'A' || c == 'C' || c == 'G' || c == 'T' || c == '$' || c == '#' || c == '{' || c == '}' || c == ',' || c == 'E') {
             sequence.push_back(c);
         } else {
             std::cerr << "Carattere non valido trovato: " << c << std::endl;
@@ -403,7 +403,7 @@ double rapportoRun(){
         //cout << count << " " << nrun << endl;
     }
     rapport = static_cast<double>(nrun) / count;
-    cout <<"numero run " << nrun<< " Dim: " << count << " , rapporto run: " << nrun/count << endl;
+    cout <<"numero run " << nrun<< " Dim: " << count << " , rapporto run: " << rapport << endl;
     return rapport;
 }
 

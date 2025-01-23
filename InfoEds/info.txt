@@ -1,0 +1,10 @@
+File Homo_chr16.eds
+file eds  -> 94.907.028
+file ebwt -> 89.706.682
+
+file eds compresso con rle  -> 40.501.044   Tasso compressione: 2.34
+file ebwt compresso con rle -> 33.968.885   Tasso compressione: 2.79
+
+file eds compresso poi con huffman -> 34.723.971  Tasso compressione: 2.73
+file EBWT compresso poi con huffman -> 29.508.792 Tasso compressione: 3.216
+
