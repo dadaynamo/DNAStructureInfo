@@ -6,3 +6,10 @@ samples/
 main2/main2DNAStructureInfo
 main2/testeds.eds
 /ver/
+/InfoEds/test
+/InfoEds/huffman-coding/huffmanCoding
+/InfoEds/huffman-coding/huffmanDecoding
+/InfoEds/huffman-coding/compareFile
+/InfoEds/runMaxsearch
+/InfoEds/statRun
+/InfoEds/decodeFile
