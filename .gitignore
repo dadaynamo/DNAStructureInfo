@@ -10,6 +10,7 @@ main2/testeds.eds
 /InfoEds/huffman-coding/huffmanCoding
 /InfoEds/huffman-coding/huffmanDecoding
 /InfoEds/huffman-coding/compareFile
-/InfoEds/runMaxsearch*
-/InfoEds/statRun*
-/InfoEds/decodeFile*
+/InfoEds/runMaxsearch
+/InfoEds/statRun
+/InfoEds/decodeFile
+/InfoEds/encodeFile
