@@ -19,11 +19,11 @@ int main() {
     char prevChar = '\0';
     int runLength = 0;
     vector<int> runCounts;  // Vettore per contare le run per ogni lunghezza
-    int totalRunLength = 0;  // Somma della lunghezza totale delle run
-    int totalRuns = 0;       // Numero totale di run
+    int totalRunLength = 0; // Somma della lunghezza totale delle run
+    int totalRuns = 0;      // Numero totale di run
 
     char currentChar;
-    long position = 0;  // Posizione nel file
+    long position = 0; // Posizione nel file
 
     // Leggi il file carattere per carattere
     while (file.get(currentChar)) {
@@ -42,7 +42,7 @@ int main() {
             }
 
             prevChar = currentChar;
-            runLength = 1;  // Resetta la lunghezza della run
+            runLength = 1; // Resetta la lunghezza della run
         }
 
         position++;
@@ -64,13 +64,38 @@ int main() {
         averageRunLength = static_cast<double>(totalRunLength) / totalRuns;
     }
 
-    // Stampa i risultati
+    // Stampa i risultati a schermo
     for (size_t i = 0; i < runCounts.size(); i++) {
-        cout << "Numero di run di lunghezza " << i + 1 << ": " << runCounts[i] << endl;
+        if(runCounts[i]!=0)
+            cout << "Numero di run di lunghezza " << i + 1 << ": " << runCounts[i] << endl;
     }
 
     // Stampa la lunghezza media delle run
     cout << "La lunghezza media delle run è: " << averageRunLength << endl;
+    cout << "Il numero delle run è: " << totalRuns << endl;
+
+    // Salva i risultati in un file di testo
+    string nomeFileOutput;
+    cout << "Inserisci il nome del file di output per salvare i risultati (es. output.txt): ";
+    cin >> nomeFileOutput;
+
+    ofstream outputFile(nomeFileOutput);
+    if (!outputFile.is_open()) {
+        cerr << "Errore nella creazione del file di output!" << endl;
+        return 1;
+    }
+
+    // Scrivi i dati nel file in formato lunghezza_run,numero_run
+    for (size_t i = 0; i < runCounts.size(); i++) {
+        if(runCounts[i]!=0)
+            outputFile << (i + 1) << "," << runCounts[i] << endl;
+    }
+
+    // Chiudi il file di output
+    outputFile.close();
+
+    cout << "I risultati sono stati salvati in " << nomeFileOutput << endl;
+
 
     file.close();
     return 0;
