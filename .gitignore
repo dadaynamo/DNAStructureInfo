@@ -7,10 +7,13 @@ main2/main2DNAStructureInfo
 main2/testeds.eds
 /ver/
 /InfoEds/test
-/InfoEds/huffman-coding/huffmanCoding
-/InfoEds/huffman-coding/huffmanDecoding
-/InfoEds/huffman-coding/compareFile
+/InfoEds/HuffCoding/huffmanCoding
+/InfoEds/HuffCoding/huffmanDecoding
+/InfoEds/HuffCoding/compareFile
 /InfoEds/runMaxsearch
 /InfoEds/statRun
 /InfoEds/decodeFile
 /InfoEds/encodeFile
+/InfoEds/dataset/
+/PlottingEds/
+/dataset/
