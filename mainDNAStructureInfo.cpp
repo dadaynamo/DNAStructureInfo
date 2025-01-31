@@ -250,7 +250,7 @@ double entropy(std::string inputName){ //Calcolo entropia di ordine zero di una 
 // Funzione per calcolare l'entropia positiva
 double entropPos0() { //USABILE
 
-    cout << countA << " " << countC << " " << countG << " " << countT << " " << count$ << " " << tot << endl;
+    cout << "countA: " << countA << " countC: " << countC << " countG: " << countG << " CountT: " << countT << " count$: " << count$ << "count#: " <<countH << " " << tot << endl;
     double entropia = 0.0;
 
     // Entropia positiva per ciascuna lettera (A, C, G, T)
@@ -271,7 +271,7 @@ double entropPos0() { //USABILE
         entropia += ((double)countT / tot) * (log(propT) / log(2));
     }
     if (count$ > 0) {
-        double prop$ = (double)tot / countT;
+        double prop$ = (double)tot / count$;
         entropia += ((double)count$ / tot) * (log(prop$) / log(2));
     }
     if (countH > 0) {
@@ -282,7 +282,24 @@ double entropPos0() { //USABILE
     return entropia;
 }
 
+double lowerBoundLocalEntropy (){
+    double G=0;
+    G = G + log2(tot-countA+1);
+    G = G + log2(tot-countC+1);
+    G = G + log2(tot-countG+1);
+    G = G + log2(tot-countT+1);
+    G = G + log2(tot-count$+1);
+    G = G + log2(tot-countH+1);
+    G = G / tot;
+    return G;
+}
 
+double degreeBalancecalc (double entropy, double LE, double lowerLE)
+{
+    double degreeBalance;
+    degreeBalance = (entropy - LE)/(entropy-lowerLE);
+    return degreeBalance;
+}
 double localEntropy (std::vector<uint32_t>& codDist, int n){
     double LE;
     double sum = 0;
@@ -421,7 +438,7 @@ void createTableI(){ //Creazione tabella finale per type individual e inserirle 
             std::cerr << "Errore nell'aprire il file" << outputName << "!" << std::endl;
         }
 
-        file << "Filename,Entropy,LocalEntropy,Tasso di Run" << std::endl;
+        file << "Filename,Entropy,LocalEntropy,Tasso di Run,LowerBoundLE,DegreeBalance" << std::endl;
 
         
         file.close();
@@ -437,6 +454,12 @@ void createTableI(){ //Creazione tabella finale per type individual e inserirle 
 void insertTableI(){ //Inserimento nuova riga della tabella nel file per type comparison 
 
     updateStats(inOrigin);
+    double entropy = entropPos0();
+    double LE = calcLE();
+    double rappRun = rapportoRun();
+    double lowerLE = lowerBoundLocalEntropy();
+    double degreeBalance = degreeBalancecalc(entropy,LE,lowerLE);  
+  
     // Apri il file in modalità append
     std::ofstream file;
     file.open(outputName+".csv", std::ios::app);
@@ -445,9 +468,8 @@ void insertTableI(){ //Inserimento nuova riga della tabella nel file per type co
     if (!file.is_open()) {
         std::cerr << "Errore nell'aprire il file in Append Mode." << std::endl;
     }
-    
-  
-    file << inOrigin << "," << entropPos0() << "," << calcLE() << "," << rapportoRun() << endl;
+   
+    file << inOrigin << "," << entropy << "," << LE << "," <<rappRun << "," << lowerLE << "," << degreeBalance << endl;
         
 
     // Scrivi i dati in formato CSV
