@@ -25,7 +25,7 @@ std::string inOrigin; //Nome file Originale
 std::string inComp; //Nome file da confrontare
 
 int tot; //Dimensione del file originale
-int countA, countC, countG, countT, count$, countH;
+int countA, countC, countG, countT, count$, countH, countN, countGA, countGC, countV;
 //int New_alpha_size = 4; //dimensione dell'alfabeto genomico , 5 considerando i $
 
 //FUNCTIONS ----------------------------------------------------------
@@ -68,6 +68,18 @@ int calcFreqChar(std::string filename){ //Dovrebbe essere una buona ottimizzazio
                 break;
             case '#':
                 countH++;
+                break;
+            case 'N':
+                countN++;
+                break;
+            case '{':
+                countGA++;
+                break;
+            case '}':
+                countGC++;
+                break;
+            case ',':
+                countV++;
                 break;
         }
         tot++; // Incrementa il numero totale di caratteri letti
@@ -185,7 +197,7 @@ double entropy(std::string inputName){ //Calcolo entropia di ordine zero di una 
     
     double entropy = 0.0;
 
-    std::int64_t countA = 0, countC = 0, countG = 0, countT = 0, countH = 0; //contatori occorrenze
+    std::int64_t countA = 0, countC = 0, countG = 0, countT = 0, countH = 0, countN=0; //contatori occorrenze
     const std::size_t bufferSize = 1024 * 1024; // 1 MB buffer
     char buffer[bufferSize];  // Buffer temporaneo per leggere il file
     
@@ -220,6 +232,18 @@ double entropy(std::string inputName){ //Calcolo entropia di ordine zero di una 
                 case '#':
                     ++countH;
                     break;
+                case 'N':
+                    ++countN;
+                    break;
+                case '{':
+                    ++countGA;
+                    break;
+                case '}':
+                    ++countGC;
+                    break;
+                case ',':
+                    ++countV;
+                    break;
             }
         }
     }
@@ -250,7 +274,7 @@ double entropy(std::string inputName){ //Calcolo entropia di ordine zero di una 
 // Funzione per calcolare l'entropia positiva
 double entropPos0() { //USABILE
 
-    cout << "countA: " << countA << " countC: " << countC << " countG: " << countG << " CountT: " << countT << " count$: " << count$ << "count#: " <<countH << " " << tot << endl;
+    cout << "countA: " << countA << " countC: " << countC << " countG: " << countG << " CountT: " << countT << " count$: " << count$ << "count#: " <<countH << " CountN:" <<countN<< " Count{:" <<countGA<< " Count}:" <<countGC<< " Count,:" <<countV<< " "  << tot << endl;
     double entropia = 0.0;
 
     // Entropia positiva per ciascuna lettera (A, C, G, T)
@@ -278,28 +302,66 @@ double entropPos0() { //USABILE
         double propH = (double)tot / countH;
         entropia += ((double)countH / tot) * (log(propH) / log(2));
     }
+    if (countN > 0) {
+        double propN = (double)tot / countN;
+        entropia += ((double)countN / tot) * (log(propN) / log(2));
+    }
+    if (countGA > 0) {
+        double propGA = (double)tot / countGA;
+        entropia += ((double)countGA / tot) * (log(propGA) / log(2));
+    }
+    if (countGC > 0) {
+        double propGC = (double)tot / countGC;
+        entropia += ((double)countGC / tot) * (log(propGC) / log(2));
+    }
+    if (countV > 0) {
+        double propV = (double)tot / countV;
+        entropia += ((double)countV / tot) * (log(propV) / log(2));
+    }
 
     return entropia;
 }
 
 double lowerBoundLocalEntropy (){
     double G=0;
+        if (countA > 0) 
     G = G + log2(tot-countA+1);
+        if (countC > 0) 
     G = G + log2(tot-countC+1);
+        if (countG > 0) 
     G = G + log2(tot-countG+1);
+        if (countT > 0) 
     G = G + log2(tot-countT+1);
+        if (count$ > 0) 
     G = G + log2(tot-count$+1);
+        if (countH > 0) 
     G = G + log2(tot-countH+1);
+        if (countN > 0) 
+    G = G + log2(tot-countN+1);
+        if (countGA > 0) 
+    G = G + log2(tot-countGA+1);
+        if (countGC > 0) 
+    G = G + log2(tot-countGC+1);
+        if (countV > 0) 
+    G = G + log2(tot-countV+1);
     G = G / tot;
     return G;
 }
 
-double degreeBalancecalc (double entropy, double LE, double lowerLE)
+double sigmaDegreeBalancecalc (double entropy, double LE, double lowerLE)
 {
     double degreeBalance;
     degreeBalance = (entropy - LE)/(entropy-lowerLE);
     return degreeBalance;
 }
+double tauDegreeBalancecalc (double entropy, double LE, double lowerLE)
+{
+    double degreeBalance;
+    degreeBalance = (LE - lowerLE)/(entropy-lowerLE);
+    return degreeBalance;
+}
+
+
 double localEntropy (std::vector<uint32_t>& codDist, int n){
     double LE;
     double sum = 0;
@@ -347,7 +409,7 @@ double calcLE(){
     std::vector<char> sequence;
     char c;
     while (inputFile.get(c)) {
-        if (c == 'A' || c == 'C' || c == 'G' || c == 'T' || c == '$' || c == '#' || c == '{' || c == '}' || c == ',' || c == 'E') {
+        if (c == 'A' || c == 'C' || c == 'G' || c == 'T' || c == '$' || c == '#' || c == '{' || c == '}' || c == ',' || c == 'E'|| c == 'N') {
             sequence.push_back(c);
         } else {
             std::cerr << "Carattere non valido trovato: " << c << std::endl;
@@ -438,7 +500,7 @@ void createTableI(){ //Creazione tabella finale per type individual e inserirle 
             std::cerr << "Errore nell'aprire il file" << outputName << "!" << std::endl;
         }
 
-        file << "Filename,Entropy,LocalEntropy,Tasso di Run,LowerBoundLE,DegreeBalance" << std::endl;
+        file << "Filename,Entropy,LocalEntropy,Tasso di Run,LowerBoundLE,Sigma,Tau" << std::endl;
 
         
         file.close();
@@ -458,7 +520,8 @@ void insertTableI(){ //Inserimento nuova riga della tabella nel file per type co
     double LE = calcLE();
     double rappRun = rapportoRun();
     double lowerLE = lowerBoundLocalEntropy();
-    double degreeBalance = degreeBalancecalc(entropy,LE,lowerLE);  
+    double sigma = sigmaDegreeBalancecalc(entropy,LE,lowerLE);  
+    double tau = tauDegreeBalancecalc(entropy,LE,lowerLE);  
   
     // Apri il file in modalità append
     std::ofstream file;
@@ -469,7 +532,7 @@ void insertTableI(){ //Inserimento nuova riga della tabella nel file per type co
         std::cerr << "Errore nell'aprire il file in Append Mode." << std::endl;
     }
    
-    file << inOrigin << "," << entropy << "," << LE << "," <<rappRun << "," << lowerLE << "," << degreeBalance << endl;
+    file << inOrigin << "," << entropy << "," << LE << "," <<rappRun << "," << lowerLE << "," << sigma << "," << tau << endl;
         
 
     // Scrivi i dati in formato CSV
