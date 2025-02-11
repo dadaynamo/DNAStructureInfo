@@ -348,7 +348,7 @@ double lowerBoundLocalEntropy (){
     return G;
 }
 
-double sigmaDegreeBalancecalc (double entropy, double LE, double lowerLE)
+double deltaDegreeBalancecalc (double entropy, double LE, double lowerLE)
 {
     double degreeBalance;
     degreeBalance = (entropy - LE)/(entropy-lowerLE);
@@ -520,7 +520,7 @@ void insertTableI(){ //Inserimento nuova riga della tabella nel file per type co
     double LE = calcLE();
     double rappRun = rapportoRun();
     double lowerLE = lowerBoundLocalEntropy();
-    double sigma = sigmaDegreeBalancecalc(entropy,LE,lowerLE);  
+    double delta = deltaDegreeBalancecalc(entropy,LE,lowerLE);  
     double tau = tauDegreeBalancecalc(entropy,LE,lowerLE);  
   
     // Apri il file in modalità append
@@ -532,7 +532,7 @@ void insertTableI(){ //Inserimento nuova riga della tabella nel file per type co
         std::cerr << "Errore nell'aprire il file in Append Mode." << std::endl;
     }
    
-    file << inOrigin << "," << entropy << "," << LE << "," <<rappRun << "," << lowerLE << "," << sigma << "," << tau << endl;
+    file << inOrigin << "," << entropy << "," << LE << "," <<rappRun << "," << lowerLE << "," << delta << "," << tau << endl;
         
 
     // Scrivi i dati in formato CSV
