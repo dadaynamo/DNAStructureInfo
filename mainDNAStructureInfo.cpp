@@ -1,86 +1,93 @@
 #include <iostream>
 #include <string>
 #include <cstring> // Necessario per strcmp
-#include <cstdlib>  // Per rand() e srand()
-#include <ctime>    // Per time()
+#include <cstdlib> // Per rand() e srand()
+#include <ctime>   // Per time()
 #include <fstream> // Libreria per la gestione dei file
 #include <sstream>
 #include <random>
 #include <vector> //Lista dinamica
 #include <unordered_map>
 #include <cstdint> // Per int64_t
-#include <cmath> // Necessario per le funzioni logaritmiche
-
+#include <cmath>   // Necessario per le funzioni logaritmiche
+#include <algorithm>
 using namespace std;
 
-//MACROS -------------------------------------------------------------
+// MACROS -------------------------------------------------------------
 
-//GLOBAL VARS --------------------------------------------------------
+// GLOBAL VARS --------------------------------------------------------
 
-std::string type;  // C -> Comparison, I -> Individual, HI -> Header Individual, HC -> Header Comparison
-char typeIn;  // E -> .eds, T -> .txt
-char typeOut = 'C'; // C -> .csv, T -> .txt
-std::string outputName; //file name senza estensione
-std::string inOrigin; //Nome file Originale
-std::string inComp; //Nome file da confrontare
+std::string type;       // C -> Comparison, I -> Individual, HI -> Header Individual, HC -> Header Comparison
+char typeIn;            // E -> .eds, T -> .txt
+char typeOut = 'C';     // C -> .csv, T -> .txt
+std::string outputName; // file name senza estensione
+std::string inOrigin;   // Nome file Originale
+std::string inComp;     // Nome file da confrontare
 
-int tot; //Dimensione del file originale
+int tot; // Dimensione del file originale
 int countA, countC, countG, countT, count$, countH, countN, countGA, countGC, countV;
-//int New_alpha_size = 4; //dimensione dell'alfabeto genomico , 5 considerando i $
+// int New_alpha_size = 4; //dimensione dell'alfabeto genomico , 5 considerando i $
 
-//FUNCTIONS ----------------------------------------------------------
+// define vettori O e C dinamici DA FARE...
+vector<int> O;
+vector<char> C;
+// FUNCTIONS ----------------------------------------------------------
 
 //********************************FUNZIONI PROF************************************** */
 
-//Calolo entropia con funzioni prof
-//Per usarli bisogna assegnare alle var globali count e tot le frequenze di ogni carattere
-
+// Calolo entropia con funzioni prof
+// Per usarli bisogna assegnare alle var globali count e tot le frequenze di ogni carattere
 
 /* **********************************************
     Calcolo delle frequenze di ogni simbolo
     nel file originale
     ********************************************* */
-int calcFreqChar(std::string filename){ //Dovrebbe essere una buona ottimizzazione
-     // Apri il file in modalità di lettura
+int calcFreqChar(std::string filename)
+{
+    // Dovrebbe essere una buona ottimizzazione
+    // Apri il file in modalità di lettura
     ifstream file(filename);
-    if (!file.is_open()) {
+    if (!file.is_open())
+    {
         cerr << "Errore nell'apertura del file." << endl;
         return 1;
     }
     // Leggi il file e conta la frequenza di A, C, G, T
     char ch;
-    while (file.get(ch)) {
-        switch (ch) {
-            case 'A':
-                countA++;
-                break;
-            case 'C':
-                countC++;
-                break;
-            case 'G':
-                countG++;
-                break;
-            case 'T':
-                countT++;
-                break;
-            case '$':
-                count$++;
-                break;
-            case '#':
-                countH++;
-                break;
-            case 'N':
-                countN++;
-                break;
-            case '{':
-                countGA++;
-                break;
-            case '}':
-                countGC++;
-                break;
-            case ',':
-                countV++;
-                break;
+    while (file.get(ch))
+    {
+        switch (ch)
+        {
+        case 'A':
+            countA++;
+            break;
+        case 'C':
+            countC++;
+            break;
+        case 'G':
+            countG++;
+            break;
+        case 'T':
+            countT++;
+            break;
+        case '$':
+            count$++;
+            break;
+        case '#':
+            countH++;
+            break;
+        case 'N':
+            countN++;
+            break;
+        case '{':
+            countGA++;
+            break;
+        case '}':
+            countGC++;
+            break;
+        case ',':
+            countV++;
+            break;
         }
         tot++; // Incrementa il numero totale di caratteri letti
     }
@@ -89,12 +96,14 @@ int calcFreqChar(std::string filename){ //Dovrebbe essere una buona ottimizzazio
     return 0;
 }
 
-void updateStats(std::string filename){ //Update le statistiche del file specificato
+void updateStats(std::string filename)
+{ // Update le statistiche del file specificato
     calcFreqChar(filename);
 }
 //*********************************************************************************** */
 
-int displayVersion(){ //mostra la versione del progetto
+int displayVersion()
+{ // mostra la versione del progetto
     std::cout << "---------------------------------------------------" << std::endl;
     std::cout << "        DNAStructureInfo Program Version 2         " << std::endl;
     std::cout << "---------------------------------------------------" << std::endl;
@@ -110,16 +119,17 @@ int displayVersion(){ //mostra la versione del progetto
     return 0;
 }
 
-int displayHelp() { //descrizione generale
+int displayHelp()
+{ // descrizione generale
     std::cout << "# DNAStructureInfo" << std::endl;
     std::cout << "DNAStructureInfo is a C++ tool that analyzes DNA sequences, extracting key metrics like entropy, local entropy, and compressibility rate." << std::endl;
     std::cout << "It generates a summary table to help researchers and bioinformaticians better understand the complexity and structure of the DNA." << std::endl;
     std::cout << std::endl;
-    
+
     std::cout << "## Installation" << std::endl;
     std::cout << "Use make command to compile the cpp program" << std::endl;
     std::cout << std::endl;
-    
+
     std::cout << "## Usage: " << std::endl;
     std::cout << "### With Makefile" << std::endl;
     std::cout << std::endl;
@@ -127,12 +137,12 @@ int displayHelp() { //descrizione generale
     std::cout << std::endl;
     std::cout << "make individual" << std::endl;
     std::cout << std::endl;
-    
+
     std::cout << "### Classic Execution" << std::endl;
     std::cout << std::endl;
     std::cout << "./mainDNAStructureInfo [option] [argument] | ..." << std::endl;
     std::cout << std::endl;
-    
+
     std::cout << "Options:" << std::endl;
     std::cout << "  --help                        Show this help message and exit." << std::endl;
     std::cout << std::endl;
@@ -159,7 +169,7 @@ int displayHelp() { //descrizione generale
     std::cout << std::endl;
     std::cout << "  --version                     Display the version of the program and exit." << std::endl;
     std::cout << std::endl;
-    
+
     std::cout << "### Examples:" << std::endl;
     std::cout << std::endl;
     std::cout << "./mainDNAStructureInfo --type C --typeOut T --typeIn E --profile A --outputName output --inOrigin input --inListComp test1 test2 test3" << std::endl;
@@ -168,7 +178,8 @@ int displayHelp() { //descrizione generale
     return 0;
 }
 
-void printGlobal (){
+void printGlobal()
+{
     cout << "GLOBAL ---------------------------------" << endl;
     cout << "Type " << type << endl;
     cout << "TypeIn " << typeIn << endl;
@@ -176,74 +187,80 @@ void printGlobal (){
     cout << "inOrigin " << inOrigin << endl;
     cout << "outputName " << outputName << endl;
     cout << "-----------------------------------------" << endl;
-
 }
 
-void printFile(std::string filename){
+void printFile(std::string filename)
+{
     std::ifstream file(filename + ".csv");
-    if (!file) {
+    if (!file)
+    {
         std::cerr << "Errore nell'aprire il file: " << filename << ".txt\n";
         return;
     }
 
     std::string line;
-    while (std::getline(file, line)) {
+    while (std::getline(file, line))
+    {
         std::cout << line << '\n';
     }
 }
 
+double entropy(std::string inputName)
+{ // Calcolo entropia di ordine zero di una stringa
 
-double entropy(std::string inputName){ //Calcolo entropia di ordine zero di una stringa 
-    
     double entropy = 0.0;
 
-    std::int64_t countA = 0, countC = 0, countG = 0, countT = 0, countH = 0, countN=0; //contatori occorrenze
-    const std::size_t bufferSize = 1024 * 1024; // 1 MB buffer
-    char buffer[bufferSize];  // Buffer temporaneo per leggere il file
-    
+    std::int64_t countA = 0, countC = 0, countG = 0, countT = 0, countH = 0, countN = 0; // contatori occorrenze
+    const std::size_t bufferSize = 1024 * 1024;                                          // 1 MB buffer
+    char buffer[bufferSize];                                                             // Buffer temporaneo per leggere il file
+
     // Aprire il file in modalità binaria
-    std::ifstream file(inputName+".txt", std::ios::in | std::ios::binary);
+    std::ifstream file(inputName + ".txt", std::ios::in | std::ios::binary);
     // Variabile per la dimensione letta
     std::int64_t dim = 0; // Variabile che tiene traccia della dimensione totale letta
 
-    if (!file) {
+    if (!file)
+    {
         std::cerr << "Error opening file!" << std::endl;
         return 1;
     }
-       // Leggere il file a blocchi e contare le occorrenze
-    while (file.read(buffer, bufferSize) || file.gcount() > 0) {
+    // Leggere il file a blocchi e contare le occorrenze
+    while (file.read(buffer, bufferSize) || file.gcount() > 0)
+    {
         std::size_t bytesRead = file.gcount(); // Numero di byte letti
-        dim += bytesRead; // Aggiorna la dimensione totale letta
+        dim += bytesRead;                      // Aggiorna la dimensione totale letta
         // Scorrere il buffer e contare le occorrenze di A, C, G, T
-        for (std::size_t i = 0; i < bytesRead; ++i) {
-            switch (buffer[i]) {
-                case 'A': 
-                    ++countA;
-                    break;
-                case 'C':
-                    ++countC;
-                    break;
-                case 'G':
-                    ++countG;
-                    break;
-                case 'T':
-                    ++countT;
-                    break;
-                case '#':
-                    ++countH;
-                    break;
-                case 'N':
-                    ++countN;
-                    break;
-                case '{':
-                    ++countGA;
-                    break;
-                case '}':
-                    ++countGC;
-                    break;
-                case ',':
-                    ++countV;
-                    break;
+        for (std::size_t i = 0; i < bytesRead; ++i)
+        {
+            switch (buffer[i])
+            {
+            case 'A':
+                ++countA;
+                break;
+            case 'C':
+                ++countC;
+                break;
+            case 'G':
+                ++countG;
+                break;
+            case 'T':
+                ++countT;
+                break;
+            case '#':
+                ++countH;
+                break;
+            case 'N':
+                ++countN;
+                break;
+            case '{':
+                ++countGA;
+                break;
+            case '}':
+                ++countGC;
+                break;
+            case ',':
+                ++countV;
+                break;
             }
         }
     }
@@ -254,10 +271,8 @@ double entropy(std::string inputName){ //Calcolo entropia di ordine zero di una 
     double freqG = static_cast<double>(countG) / static_cast<double>(dim);
     double freqT = static_cast<double>(countT) / static_cast<double>(dim);
 
-
-    //calcolo entropia
-    entropy = - ((log2(freqA)*freqA) + (log2(freqC)*freqC) + (log2(freqG)*freqG) + (log2(freqT)*freqT));
-
+    // calcolo entropia
+    entropy = -((log2(freqA) * freqA) + (log2(freqC) * freqC) + (log2(freqG) * freqG) + (log2(freqT) * freqT));
 
     // Stampa i risultati
     std::cout << "Dim file: " << dim << std::endl;
@@ -266,55 +281,116 @@ double entropy(std::string inputName){ //Calcolo entropia di ordine zero di una 
     std::cout << "Occurrences of 'G': " << countG << std::endl;
     std::cout << "Occurrences of 'T': " << countT << std::endl;
     std::cout << "Entropy DNA': " << entropy << std::endl;
-    
+
     return entropy;
-} 
+}
 
-/* DA IMPLEMENTARE*/
+double newEntropy(std::string inputName)
+{
+    double entropia = 0.0;
+
+    fillVectOC(inputName);
+
+    cout << "Lista caratteri trovati -> ";
+    for (char c : C)
+    {
+        cout << c << " ";
+    }
+    cout << endl;
+
+    cout << "Lista occorrenze caratteri trovati -> ";
+    for (char o : O)
+    {
+        cout << o << " ";
+    }
+    cout << endl;
+
+
+    return entropia;
+}
+void fillVectOC(std::string inputName)
+{
+    // Apri il file in modalità di lettura
+    ifstream file(inputName);
+    if (!file.is_open())
+    {
+        cerr << "Errore nell'apertura del file." << endl;
+        // return 1;
+    }
+    // Leggi il file e conta la frequenza di A, C, G, T
+    char ch;
+    while (file.get(ch))
+    {
+        auto it = std::find(C.begin(), C.end(), ch);
+        if (it == C.end())
+        {                    // Controlla se il carattere è già presente
+            C.push_back(ch); // Aggiunge il carattere se non è presente
+            O.push_back(1);  // Inserisce 1 nella lista delle occorrenze
+        }
+        else
+        {
+            int index = std::distance(C.begin(), it);
+            O[index]++; // Incrementa il conteggio delle occorrenze
+        }
+    }
+    file.close();
+}
+
 // Funzione per calcolare l'entropia positiva
-double entropPos0() { //USABILE
+double entropPos0()
+{ // USABILE
 
-    cout << "countA: " << countA << " countC: " << countC << " countG: " << countG << " CountT: " << countT << " count$: " << count$ << "count#: " <<countH << " CountN:" <<countN<< " Count{:" <<countGA<< " Count}:" <<countGC<< " Count,:" <<countV<< " "  << tot << endl;
+    cout << "countA: " << countA << " countC: " << countC << " countG: " << countG << " CountT: " << countT << " count$: " << count$ << "count#: " << countH << " CountN:" << countN << " Count{:" << countGA << " Count}:" << countGC << " Count,:" << countV << " " << tot << endl;
     double entropia = 0.0;
 
     // Entropia positiva per ciascuna lettera (A, C, G, T)
-    if (countA > 0) {
+    if (countA > 0)
+    {
         double propA = (double)tot / countA;
         entropia += ((double)countA / tot) * (log(propA) / log(2));
     }
-    if (countC > 0) {
+    if (countC > 0)
+    {
         double propC = (double)tot / countC;
         entropia += ((double)countC / tot) * (log(propC) / log(2));
     }
-    if (countG > 0) {
+    if (countG > 0)
+    {
         double propG = (double)tot / countG;
         entropia += ((double)countG / tot) * (log(propG) / log(2));
     }
-    if (countT > 0) {
+    if (countT > 0)
+    {
         double propT = (double)tot / countT;
         entropia += ((double)countT / tot) * (log(propT) / log(2));
     }
-    if (count$ > 0) {
+    if (count$ > 0)
+    {
         double prop$ = (double)tot / count$;
         entropia += ((double)count$ / tot) * (log(prop$) / log(2));
     }
-    if (countH > 0) {
+    if (countH > 0)
+    {
         double propH = (double)tot / countH;
         entropia += ((double)countH / tot) * (log(propH) / log(2));
     }
-    if (countN > 0) {
+    if (countN > 0)
+    {
         double propN = (double)tot / countN;
         entropia += ((double)countN / tot) * (log(propN) / log(2));
     }
-    if (countGA > 0) {
+    if (countGA > 0)
+    {
         double propGA = (double)tot / countGA;
         entropia += ((double)countGA / tot) * (log(propGA) / log(2));
     }
-    if (countGC > 0) {
+    if (countGC > 0)
+    {
         double propGC = (double)tot / countGC;
         entropia += ((double)countGC / tot) * (log(propGC) / log(2));
     }
-    if (countV > 0) {
+    if (countV > 0)
+    {
         double propV = (double)tot / countV;
         entropia += ((double)countV / tot) * (log(propV) / log(2));
     }
@@ -322,67 +398,74 @@ double entropPos0() { //USABILE
     return entropia;
 }
 
-double lowerBoundLocalEntropy (){
-    double G=0;
-        if (countA > 0) 
-    G = G + log2(tot-countA+1);
-        if (countC > 0) 
-    G = G + log2(tot-countC+1);
-        if (countG > 0) 
-    G = G + log2(tot-countG+1);
-        if (countT > 0) 
-    G = G + log2(tot-countT+1);
-        if (count$ > 0) 
-    G = G + log2(tot-count$+1);
-        if (countH > 0) 
-    G = G + log2(tot-countH+1);
-        if (countN > 0) 
-    G = G + log2(tot-countN+1);
-        if (countGA > 0) 
-    G = G + log2(tot-countGA+1);
-        if (countGC > 0) 
-    G = G + log2(tot-countGC+1);
-        if (countV > 0) 
-    G = G + log2(tot-countV+1);
+double lowerBoundLocalEntropy()
+{
+    double G = 0;
+    if (countA > 0)
+        G = G + log2(tot - countA + 1);
+    if (countC > 0)
+        G = G + log2(tot - countC + 1);
+    if (countG > 0)
+        G = G + log2(tot - countG + 1);
+    if (countT > 0)
+        G = G + log2(tot - countT + 1);
+    if (count$ > 0)
+        G = G + log2(tot - count$ + 1);
+    if (countH > 0)
+        G = G + log2(tot - countH + 1);
+    if (countN > 0)
+        G = G + log2(tot - countN + 1);
+    if (countGA > 0)
+        G = G + log2(tot - countGA + 1);
+    if (countGC > 0)
+        G = G + log2(tot - countGC + 1);
+    if (countV > 0)
+        G = G + log2(tot - countV + 1);
     G = G / tot;
     return G;
 }
 
-double deltaDegreeBalancecalc (double entropy, double LE, double lowerLE)
+double deltaDegreeBalancecalc(double entropy, double LE, double lowerLE)
 {
     double degreeBalance;
-    degreeBalance = (entropy - LE)/(entropy-lowerLE);
+    degreeBalance = (entropy - LE) / (entropy - lowerLE);
     return degreeBalance;
 }
-double tauDegreeBalancecalc (double entropy, double LE, double lowerLE)
+double tauDegreeBalancecalc(double entropy, double LE, double lowerLE)
 {
     double degreeBalance;
-    degreeBalance = (LE - lowerLE)/(entropy-lowerLE);
+    degreeBalance = (LE - lowerLE) / (entropy - lowerLE);
     return degreeBalance;
 }
 
-
-double localEntropy (std::vector<uint32_t>& codDist, int n){
+double localEntropy(std::vector<uint32_t> &codDist, int n)
+{
     double LE;
     double sum = 0;
-    for (int i = 0; i < n; ++i) {
+    for (int i = 0; i < n; ++i)
+    {
         sum += std::log2(codDist[i] + 1); // log base 2
 
-       // cout << "VAL: "<< codDist[i] << " LOG: "  <<std::log2(codDist[i] + 1)<<endl;
-       // cout << "SUM parziale: " <<  sum <<endl;
+        // cout << "VAL: "<< codDist[i] << " LOG: "  <<std::log2(codDist[i] + 1)<<endl;
+        // cout << "SUM parziale: " <<  sum <<endl;
     }
-    LE = sum/n;
+    LE = sum / n;
     return LE;
 }
-void distance_encode(const std::vector<char>& t, std::vector<uint32_t>& codDist, int n) {
+void distance_encode(const std::vector<char> &t, std::vector<uint32_t> &codDist, int n)
+{
     std::unordered_map<char, int> posMap;
 
-    for (int i = n - 1; i >= 0; --i) {
+    for (int i = n - 1; i >= 0; --i)
+    {
         char symbol = t[i];
-        if (posMap.find(symbol) == posMap.end()) {
+        if (posMap.find(symbol) == posMap.end())
+        {
             // Simbolo visto per la prima volta
             posMap[symbol] = i;
-        } else {
+        }
+        else
+        {
             // Calcola la distanza e aggiorna la posizione
             int prevPos = posMap[symbol];
             posMap[symbol] = i;
@@ -391,27 +474,34 @@ void distance_encode(const std::vector<char>& t, std::vector<uint32_t>& codDist,
     }
 
     // Gestione simboli unici o non completati
-    for (const auto& pair : posMap) {
+    for (const auto &pair : posMap)
+    {
         codDist[pair.second] = pair.second;
     }
 }
-double calcLE(){
-    
+double calcLE()
+{
+
     std::ifstream inputFile(inOrigin);
-    if (!inputFile) {
+    if (!inputFile)
+    {
         std::cerr << "Errore nell'apertura del file: " << inOrigin << std::endl;
         return 1;
     }
     // Posizionamento del cursore all'inizio del file
-    inputFile.seekg(0, std::ios::beg);  // Posiziona il cursore di lettura all'inizio
-    
+    inputFile.seekg(0, std::ios::beg); // Posiziona il cursore di lettura all'inizio
+
     // Leggi il file
     std::vector<char> sequence;
     char c;
-    while (inputFile.get(c)) {
-        if (c == 'A' || c == 'C' || c == 'G' || c == 'T' || c == '$' || c == '#' || c == '{' || c == '}' || c == ',' || c == 'E'|| c == 'N') {
+    while (inputFile.get(c))
+    {
+        if (c == 'A' || c == 'C' || c == 'G' || c == 'T' || c == '$' || c == '#' || c == '{' || c == '}' || c == ',' || c == 'E' || c == 'N')
+        {
             sequence.push_back(c);
-        } else {
+        }
+        else
+        {
             std::cerr << "Carattere non valido trovato: " << c << std::endl;
             return 1;
         }
@@ -423,15 +513,16 @@ double calcLE(){
 
     // Calcola il Distance Code
     distance_encode(sequence, codDist, n);
-    double LE = localEntropy(codDist,n);
+    double LE = localEntropy(codDist, n);
     return LE;
 }
 
-
-double tassoComp(){
-  // Apertura del file originale per ottenere la sua dimensione
-    std::ifstream fileOrig(inOrigin, std::ios::binary | std::ios::ate);  // Modalità binaria per evitare errori
-    if (!fileOrig.is_open()) {
+double tassoComp()
+{
+    // Apertura del file originale per ottenere la sua dimensione
+    std::ifstream fileOrig(inOrigin, std::ios::binary | std::ios::ate); // Modalità binaria per evitare errori
+    if (!fileOrig.is_open())
+    {
         std::cerr << "Impossibile aprire il file originale!" << std::endl;
         return -1.0;
     }
@@ -439,8 +530,9 @@ double tassoComp(){
     fileOrig.close();
 
     // Apertura del file compresso per ottenere la sua dimensione
-    std::ifstream fileComp(inComp, std::ios::binary | std::ios::ate);  // Modalità binaria
-    if (!fileComp.is_open()) {
+    std::ifstream fileComp(inComp, std::ios::binary | std::ios::ate); // Modalità binaria
+    if (!fileComp.is_open())
+    {
         std::cerr << "Impossibile aprire il file compresso!" << std::endl;
         return -1.0;
     }
@@ -448,262 +540,305 @@ double tassoComp(){
     fileComp.close();
 
     // Calcolo del tasso di compressione
-    if (sizeCompresso == 0) {
+    if (sizeCompresso == 0)
+    {
         std::cerr << "Errore: il file compresso è vuoto." << std::endl;
         return -1.0;
     }
     cout << "dimensione inOrigin " << sizeOriginale << ". dimensione inComp " << sizeCompresso << endl;
-    cout << "tasso compressione = " << static_cast<double>(sizeOriginale) / static_cast<double>(sizeCompresso) <<endl;
+    cout << "tasso compressione = " << static_cast<double>(sizeOriginale) / static_cast<double>(sizeCompresso) << endl;
 
     return static_cast<double>(sizeOriginale) / static_cast<double>(sizeCompresso);
 }
 
-
-double rapportoRun(){
+double rapportoRun()
+{
     int count = 0;
-    int nrun=0;
+    int nrun = 0;
     char punt = ' ';
     char c;
     double rapport;
-    //prendi il primo carattere
+    // prendi il primo carattere
     std::ifstream file(inOrigin); // Apri il file in modalità testo
-    if (!file.is_open()) {
+    if (!file.is_open())
+    {
         std::cerr << "Errore: impossibile aprire il file " << inOrigin << std::endl;
-  
     }
-    
-    while (file.get(c)) { // Legge un carattere alla volta
-        //std::cout << c<< endl; // Stampa il carattere
-           count++;
-        if(punt != c){
+
+    while (file.get(c))
+    { // Legge un carattere alla volta
+        // std::cout << c<< endl; // Stampa il carattere
+        count++;
+        if (punt != c)
+        {
             nrun++;
-            punt=c;
-        }  
-        //cout << count << " " << nrun << endl;
+            punt = c;
+        }
+        // cout << count << " " << nrun << endl;
     }
     rapport = static_cast<double>(nrun) / count;
-    cout <<"numero run " << nrun<< " Dim: " << count << " , rapporto run: " << rapport << endl;
+    cout << "numero run " << nrun << " Dim: " << count << " , rapporto run: " << rapport << endl;
     return rapport;
 }
-
-
 
 /* ***************************************
     Calcolo Header tabella per individual e stampa nel file
     ************************************** */
-void createTableI(){ //Creazione tabella finale per type individual e inserirle nel file
-    if(typeOut == 'C'){ //creazione file .csv
+void createTableI()
+{ // Creazione tabella finale per type individual e inserirle nel file
+    if (typeOut == 'C')
+    { // creazione file .csv
         // Creazione di un oggetto ofstream per scrivere nel file CSV
-        std::ofstream file(outputName+".csv", std::ios::app);
+        std::ofstream file(outputName + ".csv", std::ios::app);
         // Verifica se il file è stato aperto correttamente
-        if (!file.is_open()) {
+        if (!file.is_open())
+        {
             std::cerr << "Errore nell'aprire il file" << outputName << "!" << std::endl;
         }
 
         file << "Filename,Entropy,LocalEntropy,Tasso di Run,LowerBoundLE,Sigma,Tau" << std::endl;
 
-        
         file.close();
         std::cout << "Header Individual CSV creato con successo!" << std::endl;
-   
-        
-    }else if(typeOut == 'T'){ //creazione file .txt
+    }
+    else if (typeOut == 'T')
+    { // creazione file .txt
         std::cout << "Da implementare!" << std::endl;
-        
     }
 }
 
-void insertTableI(){ //Inserimento nuova riga della tabella nel file per type comparison 
+void insertTableI()
+{ // Inserimento nuova riga della tabella nel file per type comparison
 
     updateStats(inOrigin);
-    double entropy = entropPos0();
+    // double entropy = entropPos0();
+    double entropy = newEntropy(inOrigin);
+
     double LE = calcLE();
     double rappRun = rapportoRun();
     double lowerLE = lowerBoundLocalEntropy();
-    double delta = deltaDegreeBalancecalc(entropy,LE,lowerLE);  
-    double tau = tauDegreeBalancecalc(entropy,LE,lowerLE);  
-  
+    double delta = deltaDegreeBalancecalc(entropy, LE, lowerLE);
+    double tau = tauDegreeBalancecalc(entropy, LE, lowerLE);
+
     // Apri il file in modalità append
     std::ofstream file;
-    file.open(outputName+".csv", std::ios::app);
+    file.open(outputName + ".csv", std::ios::app);
 
     // Verifica se il file è stato aperto correttamente
-    if (!file.is_open()) {
+    if (!file.is_open())
+    {
         std::cerr << "Errore nell'aprire il file in Append Mode." << std::endl;
     }
-   
-    file << inOrigin << "," << entropy << "," << LE << "," <<rappRun << "," << lowerLE << "," << delta << "," << tau << endl;
-        
+
+    file << inOrigin << "," << entropy << "," << LE << "," << rappRun << "," << lowerLE << "," << delta << "," << tau << endl;
 
     // Scrivi i dati in formato CSV
-   
+
     // Chiudi il file
     file.close();
     std::cout << "Nuova riga aggiunta con successo!" << std::endl;
 }
-
 
 /* ***************************************
     Calcolo Header tabella per comparison e stampa nel file
     ************************************** */
-void createTableC(){ //creazione intestazione della tabella nel file per type comparison 
-  if(typeOut == 'C'){ //creazione file .csv
+void createTableC()
+{ // creazione intestazione della tabella nel file per type comparison
+    if (typeOut == 'C')
+    { // creazione file .csv
         // Creazione di un oggetto ofstream per scrivere nel file CSV
-        std::ofstream file(outputName+".csv", std::ios::app);
+        std::ofstream file(outputName + ".csv", std::ios::app);
         // Verifica se il file è stato aperto correttamente
-        if (!file.is_open()) {
+        if (!file.is_open())
+        {
             std::cerr << "Errore nell'aprire il file!" << std::endl;
         }
         file << "Filename,Rapporto Compressione" << std::endl;
-        
-        
+
         file.close();
         std::cout << "Header Comparison CSV creato con successo!" << std::endl;
-   
-        
-    }else if(typeOut == 'T'){ //creazione file .txt
+    }
+    else if (typeOut == 'T')
+    { // creazione file .txt
         std::cout << "Da implementare!" << std::endl;
-        
     }
 }
 
-void insertTableC(){ //Inserimento nuova riga della tabella nel file per type comparison 
+void insertTableC()
+{ // Inserimento nuova riga della tabella nel file per type comparison
 
     // Apri il file in modalità append
     std::ofstream file;
-    file.open(outputName+".csv", std::ios::app);
+    file.open(outputName + ".csv", std::ios::app);
 
     // Verifica se il file è stato aperto correttamente
-    if (!file.is_open()) {
+    if (!file.is_open())
+    {
         std::cerr << "Errore nell'aprire il file in Append Mode." << std::endl;
     }
-   
-    file << inOrigin << "-" << inComp  << "," << tassoComp() << endl;
-    
+
+    file << inOrigin << "-" << inComp << "," << tassoComp() << endl;
+
     // Chiudi il file
     file.close();
     std::cout << "Nuova riga aggiunta con successo!" << std::endl;
 }
 
+// MAIN ----------------------------------------------------------------
+int main(int argc, char *argv[])
+{
 
-
-//MAIN ----------------------------------------------------------------
-int main(int argc, char* argv[]){
-
-    //Verifica 0 parametri 
-    if (argc == 1){
+    // Verifica 0 parametri
+    if (argc == 1)
+    {
         std::cerr << "Error: Missing required parameters.\n";
         return 1;
     }
 
     // Verifica gli argomenti passati
-    if (argc > 1 && std::string(argv[1]) == "--help"){
+    if (argc > 1 && std::string(argv[1]) == "--help")
+    {
         displayHelp();
         return 0;
     }
 
     // Verifica gli argomenti passati
-    if (argc > 1 && std::string(argv[1]) == "--version"){
+    if (argc > 1 && std::string(argv[1]) == "--version")
+    {
         displayVersion();
         return 0;
     }
-   
+
     // Verifica gli argomenti passati --test
-    if (argc > 1 && std::string(argv[1]) == "--test"){
+    if (argc > 1 && std::string(argv[1]) == "--test")
+    {
         printGlobal();
         return 0;
     }
-    
+
     // Analizza gli argomenti della riga di comando
-    for(int i = 1; i < argc; i += 2) {
-        if (strcmp(argv[i], "--type") == 0) { //Tipo Di procedura da seguire
-            if (i + 1 < argc) { // Controlla se c'è un argomento successivo
-                if (strcmp(argv[i + 1], "C") == 0) {
+    for (int i = 1; i < argc; i += 2)
+    {
+        if (strcmp(argv[i], "--type") == 0)
+        { // Tipo Di procedura da seguire
+            if (i + 1 < argc)
+            { // Controlla se c'è un argomento successivo
+                if (strcmp(argv[i + 1], "C") == 0)
+                {
                     type = "C"; // Comparison
-                } else if (strcmp(argv[i + 1], "I") == 0) {
+                }
+                else if (strcmp(argv[i + 1], "I") == 0)
+                {
                     type = "I"; // Individual
-                }else if (strcmp(argv[i + 1], "HI") == 0) {
+                }
+                else if (strcmp(argv[i + 1], "HI") == 0)
+                {
                     type = "HI"; // Header Individual
-                } else if (strcmp(argv[i + 1], "HC") == 0) {
+                }
+                else if (strcmp(argv[i + 1], "HC") == 0)
+                {
                     type = "HC"; // Header Comparison
-                }  else{
+                }
+                else
+                {
                     std::cerr << "Errore inserimento type" << std::endl;
                     return 1;
                 }
             }
-        } else if (strcmp(argv[i], "--typeOut") == 0) { //Estensione file in output
-            if (i + 1 < argc) {
-                if (strcmp(argv[i + 1], "C") == 0) {
+        }
+        else if (strcmp(argv[i], "--typeOut") == 0)
+        { // Estensione file in output
+            if (i + 1 < argc)
+            {
+                if (strcmp(argv[i + 1], "C") == 0)
+                {
                     typeOut = 'C'; // CSV
-                } else if (strcmp(argv[i + 1], "T") == 0) {
+                }
+                else if (strcmp(argv[i + 1], "T") == 0)
+                {
                     typeOut = 'T'; // TXT
-                } else{
+                }
+                else
+                {
                     std::cerr << "Errore inserimento typeOut" << std::endl;
                     return 1;
                 }
             }
-        } else if (strcmp(argv[i], "--outputName") == 0) {
-            if (i + 1 < argc) {
+        }
+        else if (strcmp(argv[i], "--outputName") == 0)
+        {
+            if (i + 1 < argc)
+            {
                 outputName = argv[i + 1]; // Nome file output senza estensione
             }
-        } else if (strcmp(argv[i], "--inOrigin") == 0) {
-            if (i + 1 < argc) {
+        }
+        else if (strcmp(argv[i], "--inOrigin") == 0)
+        {
+            if (i + 1 < argc)
+            {
                 inOrigin = argv[i + 1]; // Nome file input senza estensione
-            }   
-        }else if (strcmp(argv[i], "--inComp") == 0) {
-            if (i + 1 < argc) {
+            }
+        }
+        else if (strcmp(argv[i], "--inComp") == 0)
+        {
+            if (i + 1 < argc)
+            {
                 inComp = argv[i + 1]; // Nome file input senza estensione
-            }   
+            }
         }
     }
-/*
-    if(outputName == "") cout << "Non hai inserito il nome del file di output. Riprovare!!" <<endl;
-    //if(inOrigin == "") cout << "Non hai inserito il nome del file di input. Riprovare!!" <<endl;
-    if(typeOut == '\0') typeOut = 'C';
-    if(type == "C"){
-        if(inOrigin == "" || inComp == ""){
-            cout << "Errore. non hai inserito i filename di input o output" << endl;
-            return 1;
-        }   
-    }
-  */  
+    /*
+        if(outputName == "") cout << "Non hai inserito il nome del file di output. Riprovare!!" <<endl;
+        //if(inOrigin == "") cout << "Non hai inserito il nome del file di input. Riprovare!!" <<endl;
+        if(typeOut == '\0') typeOut = 'C';
+        if(type == "C"){
+            if(inOrigin == "" || inComp == ""){
+                cout << "Errore. non hai inserito i filename di input o output" << endl;
+                return 1;
+            }
+        }
+      */
 
-    //printGlobal();
+    // printGlobal();
 
-/*
+    /*
 
-ATTRIBUTI:
---type I C HI HC
---typeOut C T
---outputName string
---inOrigin string
---inComp string
+    ATTRIBUTI:
+    --type I C HI HC
+    --typeOut C T
+    --outputName string
+    --inOrigin string
+    --inComp string
 
-*/
+    */
 
-
-
-    if (type == "I") {
+    if (type == "I")
+    {
         insertTableI();
         std::cout << "Hai scelto H." << std::endl;
-    } else if (type == "C") {
+    }
+    else if (type == "C")
+    {
         insertTableC();
         std::cout << "Hai scelto C." << std::endl;
-    } else if (type == "HI") {
+    }
+    else if (type == "HI")
+    {
         std::cout << "Creo Header per individual." << std::endl;
         createTableI();
-    } else if (type == "HC") {
+    }
+    else if (type == "HC")
+    {
         std::cout << "Creo Header per comparison." << std::endl;
         createTableC();
-    } else {
+    }
+    else
+    {
         std::cerr << "Errore inserimento type" << std::endl;
         return 1;
     }
 
-    
     cout << "Fine prog" << endl;
 
-
     return 0;
-
 }
