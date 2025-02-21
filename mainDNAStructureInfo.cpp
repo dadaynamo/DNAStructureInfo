@@ -285,29 +285,6 @@ double entropy(std::string inputName)
     return entropy;
 }
 
-double newEntropy(std::string inputName)
-{
-    double entropia = 0.0;
-
-    fillVectOC(inputName);
-
-    cout << "Lista caratteri trovati -> ";
-    for (char c : C)
-    {
-        cout << c << " ";
-    }
-    cout << endl;
-
-    cout << "Lista occorrenze caratteri trovati -> ";
-    for (char o : O)
-    {
-        cout << o << " ";
-    }
-    cout << endl;
-
-
-    return entropia;
-}
 void fillVectOC(std::string inputName)
 {
     // Apri il file in modalità di lettura
@@ -335,10 +312,34 @@ void fillVectOC(std::string inputName)
     }
     file.close();
 }
+void printOC(){
+ 
+    cout << "********************************" << endl;
+    for (size_t i = 0; i< C.size(); i++)
+    {
+        cout << "| " << C[i] << " : " << O[i] << endl;
+    }  
+    cout << "********************************" <<endl;
+}
+double newEntropy(std::string inputName)
+{
+    double entropia = 0.0;
+
+    fillVectOC(inputName);
+    printOC();
+
+    for (size_t i = 0; i < O.size(); i++) {
+        double propC = (double)tot / O[i];
+        entropia += ((double)O[i] / tot) * (log(propC) / log(2));
+    }
+
+    return entropia;
+}
+
 
 // Funzione per calcolare l'entropia positiva
 double entropPos0()
-{ // USABILE
+{
 
     cout << "countA: " << countA << " countC: " << countC << " countG: " << countG << " CountT: " << countT << " count$: " << count$ << "count#: " << countH << " CountN:" << countN << " Count{:" << countGA << " Count}:" << countGC << " Count,:" << countV << " " << tot << endl;
     double entropia = 0.0;
