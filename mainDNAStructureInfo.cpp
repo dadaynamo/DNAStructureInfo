@@ -11,6 +11,7 @@
 #include <cstdint> // Per int64_t
 #include <cmath>   // Necessario per le funzioni logaritmiche
 #include <algorithm>
+#include <chrono>
 using namespace std;
 
 // MACROS -------------------------------------------------------------
@@ -23,24 +24,78 @@ char typeOut = 'C';     // C -> .csv, T -> .txt
 std::string outputName; // file name senza estensione
 std::string inOrigin;   // Nome file Originale
 std::string inComp;     // Nome file da confrontare
+std::string logName;    // Nome file di log
 
 int tot; // Dimensione del file originale
 int countA, countC, countG, countT, count$, countH, countN, countGA, countGC, countV;
-// int New_alpha_size = 4; //dimensione dell'alfabeto genomico , 5 considerando i $
 
-// define vettori O e C dinamici DA FARE...
-vector<int> O;
-vector<char> C;
-// FUNCTIONS ----------------------------------------------------------
+vector<int> O;  // vettore occorrenze caratteri
+vector<char> C; // vettore caratteri del file inOrigin
 
-//********************************FUNZIONI PROF************************************** */
+std::ofstream logFile; // Dichiarazione di una variabile globale per il file di log
 
-// Calolo entropia con funzioni prof
-// Per usarli bisogna assegnare alle var globali count e tot le frequenze di ogni carattere
+// FUNCTIONS --------------------------------------------------------------------------------------------------------------------
+
+// Funzione per ottenere il timestamp corrente
+std::string getTimestamp()
+{
+    std::time_t now = std::time(nullptr);
+    char timestamp[100];
+    std::strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", std::localtime(&now));
+    return std::string(timestamp);
+}
+
+// Funzione per scrivere nel file di log
+void writeLog(const std::string &level, const std::string &message)
+{
+    logFile << "[" << getTimestamp() << "] " << level << " " << message << std::endl;
+}
+
+// Funzione per scrivere una separazione di sezione
+void writeSectionSeparator(const std::string &sectionName)
+{
+    logFile << "*************************************************************" << std::endl;
+    logFile << "=== SEZIONE: " << sectionName << " ===" << std::endl;
+}
+
+// Funzione per scrivere la fine di una sezione
+void writeSectionEnd(const std::string &sectionName)
+{
+    logFile << "=== FINE SEZIONE: " << sectionName << " ===" << std::endl;
+    logFile << "*************************************************************" << std::endl
+            << std::endl;
+}
+
+// Funzione per calcolare il tempo trascorso tra due momenti
+long long calculateDuration(const std::chrono::steady_clock::time_point &startTime)
+{
+    auto endTime = std::chrono::steady_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+    return duration;
+}
+
+// Funzione per aprire il file di log (da chiamare all'inizio)
+void openLogFile(const std::string &filename)
+{
+    logFile.open(filename, std::ios::app); // Apertura in modalità append
+    if (!logFile.is_open())
+    {
+        std::cerr << "Errore nell'apertura del file di log!" << std::endl;
+    }
+}
+
+// Funzione per chiudere il file di log (da chiamare alla fine)
+void closeLogFile()
+{
+    if (logFile.is_open())
+    {
+        logFile.close();
+    }
+}
 
 /* **********************************************
     Calcolo delle frequenze di ogni simbolo
-    nel file originale
+    nel file originale DA TOGLIERE
     ********************************************* */
 int calcFreqChar(std::string filename)
 {
@@ -189,103 +244,7 @@ void printGlobal()
     cout << "-----------------------------------------" << endl;
 }
 
-void printFile(std::string filename)
-{
-    std::ifstream file(filename + ".csv");
-    if (!file)
-    {
-        std::cerr << "Errore nell'aprire il file: " << filename << ".txt\n";
-        return;
-    }
-
-    std::string line;
-    while (std::getline(file, line))
-    {
-        std::cout << line << '\n';
-    }
-}
-
-double entropy(std::string inputName)
-{ // Calcolo entropia di ordine zero di una stringa
-
-    double entropy = 0.0;
-
-    std::int64_t countA = 0, countC = 0, countG = 0, countT = 0, countH = 0, countN = 0; // contatori occorrenze
-    const std::size_t bufferSize = 1024 * 1024;                                          // 1 MB buffer
-    char buffer[bufferSize];                                                             // Buffer temporaneo per leggere il file
-
-    // Aprire il file in modalità binaria
-    std::ifstream file(inputName + ".txt", std::ios::in | std::ios::binary);
-    // Variabile per la dimensione letta
-    std::int64_t dim = 0; // Variabile che tiene traccia della dimensione totale letta
-
-    if (!file)
-    {
-        std::cerr << "Error opening file!" << std::endl;
-        return 1;
-    }
-    // Leggere il file a blocchi e contare le occorrenze
-    while (file.read(buffer, bufferSize) || file.gcount() > 0)
-    {
-        std::size_t bytesRead = file.gcount(); // Numero di byte letti
-        dim += bytesRead;                      // Aggiorna la dimensione totale letta
-        // Scorrere il buffer e contare le occorrenze di A, C, G, T
-        for (std::size_t i = 0; i < bytesRead; ++i)
-        {
-            switch (buffer[i])
-            {
-            case 'A':
-                ++countA;
-                break;
-            case 'C':
-                ++countC;
-                break;
-            case 'G':
-                ++countG;
-                break;
-            case 'T':
-                ++countT;
-                break;
-            case '#':
-                ++countH;
-                break;
-            case 'N':
-                ++countN;
-                break;
-            case '{':
-                ++countGA;
-                break;
-            case '}':
-                ++countGC;
-                break;
-            case ',':
-                ++countV;
-                break;
-            }
-        }
-    }
-
-    file.close();
-    double freqA = static_cast<double>(countA) / static_cast<double>(dim);
-    double freqC = static_cast<double>(countC) / static_cast<double>(dim);
-    double freqG = static_cast<double>(countG) / static_cast<double>(dim);
-    double freqT = static_cast<double>(countT) / static_cast<double>(dim);
-
-    // calcolo entropia
-    entropy = -((log2(freqA) * freqA) + (log2(freqC) * freqC) + (log2(freqG) * freqG) + (log2(freqT) * freqT));
-
-    // Stampa i risultati
-    std::cout << "Dim file: " << dim << std::endl;
-    std::cout << "Occurrences of 'A': " << countA << std::endl;
-    std::cout << "Occurrences of 'C': " << countC << std::endl;
-    std::cout << "Occurrences of 'G': " << countG << std::endl;
-    std::cout << "Occurrences of 'T': " << countT << std::endl;
-    std::cout << "Entropy DNA': " << entropy << std::endl;
-
-    return entropy;
-}
-
-void fillVectOC(std::string inputName)
+void fillVectOC(std::string inputName) // Calcolo delle frequenze
 {
     // Apri il file in modalità di lettura
     ifstream file(inputName);
@@ -309,34 +268,33 @@ void fillVectOC(std::string inputName)
             int index = std::distance(C.begin(), it);
             O[index]++; // Incrementa il conteggio delle occorrenze
         }
+        tot++;
     }
     file.close();
 }
-void printOC(){
- 
+void printOC() // Stampa vettori OC
+{
+
     cout << "********************************" << endl;
-    for (size_t i = 0; i< C.size(); i++)
+    for (size_t i = 0; i < C.size(); i++)
     {
         cout << "| " << C[i] << " : " << O[i] << endl;
-    }  
-    cout << "********************************" <<endl;
+    }
+    cout << "********************************" << endl;
 }
-double newEntropy(std::string inputName)
+double newEntropy()
 {
     double entropia = 0.0;
 
-    fillVectOC(inputName);
-    printOC();
-
-    for (size_t i = 0; i < O.size(); i++) {
+    for (size_t i = 0; i < O.size(); i++)
+    {
         double propC = (double)tot / O[i];
         entropia += ((double)O[i] / tot) * (log(propC) / log(2));
     }
 
     return entropia;
 }
-
-
+/*
 // Funzione per calcolare l'entropia positiva
 double entropPos0()
 {
@@ -397,8 +355,8 @@ double entropPos0()
     }
 
     return entropia;
-}
-
+}*/
+/*
 double lowerBoundLocalEntropy()
 {
     double G = 0;
@@ -422,6 +380,17 @@ double lowerBoundLocalEntropy()
         G = G + log2(tot - countGC + 1);
     if (countV > 0)
         G = G + log2(tot - countV + 1);
+    G = G / tot;
+    return G;
+}*/
+
+double newLowerBoundLocalEntropy()
+{
+    double G = 0;
+    for (size_t i = 0; i < O.size(); i++)
+    {
+        G = G + log2(tot - O[i] + 1);
+    }
     G = G / tot;
     return G;
 }
@@ -582,6 +551,45 @@ double rapportoRun()
     return rapport;
 }
 
+
+void calcDebug()
+{ // Inserimento nuova riga della tabella nel file per type comparison
+    writeSectionSeparator("Calcolo entropia");
+    updateStats(inOrigin);
+    fillVectOC(inOrigin);
+    printOC();
+    double entropy = newEntropy();
+    double LE = calcLE();
+    double rappRun = rapportoRun();
+    double lowerLE = newLowerBoundLocalEntropy();
+    double delta = deltaDegreeBalancecalc(entropy, LE, lowerLE);
+    double tau = tauDegreeBalancecalc(entropy, LE, lowerLE);
+
+    // Apri il file in modalità append
+    std::ofstream file;
+    file.open(outputName + ".csv", std::ios::app);
+
+    // Verifica se il file è stato aperto correttamente
+    if (!file.is_open())
+    {
+        std::cerr << "Errore nell'aprire il file in Append Mode." << std::endl;
+    }
+
+    file << inOrigin << "," << entropy << "," << LE << "," << rappRun << "," << lowerLE << "," << delta << "," << tau << endl;
+    writeLog("[INFO] Entropy: ", to_string(entropy));
+    writeLog("[INFO] Local Entropy: ", to_string(LE));
+    writeLog("[INFO] Lower LE: ", to_string(lowerLE));
+    writeLog("[INFO] Delta: ", to_string(delta));
+    
+
+    // Scrivi i dati in formato CSV
+    writeSectionEnd("Elaborazione dati");
+    // Chiudi il file
+    file.close();
+    std::cout << "Nuova riga aggiunta con successo!" << std::endl;
+}
+
+
 /* ***************************************
     Calcolo Header tabella per individual e stampa nel file
     ************************************** */
@@ -612,12 +620,13 @@ void insertTableI()
 { // Inserimento nuova riga della tabella nel file per type comparison
 
     updateStats(inOrigin);
-    // double entropy = entropPos0();
-    double entropy = newEntropy(inOrigin);
-
+    fillVectOC(inOrigin);
+    printOC();
+    double entropy = newEntropy();
     double LE = calcLE();
     double rappRun = rapportoRun();
-    double lowerLE = lowerBoundLocalEntropy();
+    // double lowerLE = lowerBoundLocalEntropy();
+    double lowerLE = newLowerBoundLocalEntropy();
     double delta = deltaDegreeBalancecalc(entropy, LE, lowerLE);
     double tau = tauDegreeBalancecalc(entropy, LE, lowerLE);
 
@@ -740,6 +749,10 @@ int main(int argc, char *argv[])
                 {
                     type = "HC"; // Header Comparison
                 }
+                else if (strcmp(argv[i + 1], "D") == 0)
+                {
+                    type = "D"; // Individual
+                }
                 else
                 {
                     std::cerr << "Errore inserimento type" << std::endl;
@@ -787,6 +800,19 @@ int main(int argc, char *argv[])
                 inComp = argv[i + 1]; // Nome file input senza estensione
             }
         }
+        else if (strcmp(argv[i], "--log") == 0)
+        {
+            if (i + 1 < argc)
+            {
+                logName = argv[i + 1]; // Nome file output senza estensione
+                openLogFile(logName);  // Apri il file di log una sola volta
+            }
+        }
+        else
+        {
+            // default
+            openLogFile("a.log");
+        }
     }
     /*
         if(outputName == "") cout << "Non hai inserito il nome del file di output. Riprovare!!" <<endl;
@@ -805,15 +831,20 @@ int main(int argc, char *argv[])
     /*
 
     ATTRIBUTI:
-    --type I C HI HC
+    --type I C HI HC D
     --typeOut C T
     --outputName string
     --inOrigin string
     --inComp string
+    --log string
 
     */
-
-    if (type == "I")
+    if (type == "D")
+    {
+        calcDebug();
+        std::cout << "Hai scelto D." << std::endl;
+    }
+    else if (type == "I")
     {
         insertTableI();
         std::cout << "Hai scelto H." << std::endl;
@@ -840,6 +871,6 @@ int main(int argc, char *argv[])
     }
 
     cout << "Fine prog" << endl;
-
+    closeLogFile(); // Chiudi il file di log alla fine
     return 0;
 }
