@@ -18,13 +18,13 @@ using namespace std;
 
 // GLOBAL VARS --------------------------------------------------------
 
-std::string type;       // C -> Comparison, I -> Individual, HI -> Header Individual, HC -> Header Comparison
-char typeIn;            // E -> .eds, T -> .txt
-char typeOut = 'C';     // C -> .csv, T -> .txt
-std::string outputName; // file name senza estensione
-std::string inOrigin;   // Nome file Originale
-std::string inComp;     // Nome file da confrontare
-std::string logName;    // Nome file di log
+std::string type;         // C -> Comparison, I -> Individual, HI -> Header Individual, HC -> Header Comparison
+char typeIn;              // E -> .eds, T -> .txt
+char typeOut = 'C';       // C -> .csv, T -> .txt
+std::string outputName;   // file name senza estensione
+std::string inOrigin;     // Nome file Originale
+std::string inComp;       // Nome file da confrontare
+std::string logName = ""; // Nome file di log
 
 int tot; // Dimensione del file originale
 int countA, countC, countG, countT, count$, countH, countN, countGA, countGC, countV;
@@ -82,6 +82,7 @@ void openLogFile(const std::string &filename)
     {
         std::cerr << "Errore nell'apertura del file di log!" << std::endl;
     }
+    cout << "file log aperto" << endl;
 }
 
 // Funzione per chiudere il file di log (da chiamare alla fine)
@@ -268,9 +269,14 @@ void fillVectOC(std::string inputName) // Calcolo delle frequenze
             int index = std::distance(C.begin(), it);
             O[index]++; // Incrementa il conteggio delle occorrenze
         }
-        tot++;
     }
     file.close();
+    tot = 0;
+    for (size_t i = 0; i < O.size(); i++)
+    {
+        tot = tot + O[i];
+        cout<< "Sto caricando il tot" <<tot <<endl;
+    }
 }
 void printOC() // Stampa vettori OC
 {
@@ -279,22 +285,25 @@ void printOC() // Stampa vettori OC
     for (size_t i = 0; i < C.size(); i++)
     {
         cout << "| " << C[i] << " : " << O[i] << endl;
+        string text = "| " + string(1, C[i]) + " : " + to_string(O[i]);
+        writeLog("", text);
     }
     cout << "********************************" << endl;
 }
 double newEntropy()
 {
     double entropia = 0.0;
-
+    cout << "tot " <<  tot << endl;
     for (size_t i = 0; i < O.size(); i++)
     {
         double propC = (double)tot / O[i];
         entropia += ((double)O[i] / tot) * (log(propC) / log(2));
+        cout << "O[i]: " << to_string(O[i]) << " PropC: " <<  to_string(propC) << " entropia: " << entropia <<endl; 
     }
 
     return entropia;
 }
-/*
+
 // Funzione per calcolare l'entropia positiva
 double entropPos0()
 {
@@ -355,7 +364,7 @@ double entropPos0()
     }
 
     return entropia;
-}*/
+}
 /*
 double lowerBoundLocalEntropy()
 {
@@ -551,14 +560,16 @@ double rapportoRun()
     return rapport;
 }
 
-
 void calcDebug()
 { // Inserimento nuova riga della tabella nel file per type comparison
-    writeSectionSeparator("Calcolo entropia");
+    cout << "debug" << endl;
+
+    writeSectionSeparator("Calcolo Debug");
     updateStats(inOrigin);
     fillVectOC(inOrigin);
     printOC();
     double entropy = newEntropy();
+    double entrpos = entropPos0();
     double LE = calcLE();
     double rappRun = rapportoRun();
     double lowerLE = newLowerBoundLocalEntropy();
@@ -575,20 +586,22 @@ void calcDebug()
         std::cerr << "Errore nell'aprire il file in Append Mode." << std::endl;
     }
 
+
     file << inOrigin << "," << entropy << "," << LE << "," << rappRun << "," << lowerLE << "," << delta << "," << tau << endl;
+    writeLog("[INFO] Tot: ", to_string(tot));
     writeLog("[INFO] Entropy: ", to_string(entropy));
+    writeLog("[INFO] Entropy POS: ", to_string(entrpos));
     writeLog("[INFO] Local Entropy: ", to_string(LE));
     writeLog("[INFO] Lower LE: ", to_string(lowerLE));
     writeLog("[INFO] Delta: ", to_string(delta));
-    
+    writeLog("[INFO] Tau: ", to_string(tau));
 
     // Scrivi i dati in formato CSV
-    writeSectionEnd("Elaborazione dati");
+    writeSectionEnd("Calcolo Debug");
     // Chiudi il file
     file.close();
     std::cout << "Nuova riga aggiunta con successo!" << std::endl;
 }
-
 
 /* ***************************************
     Calcolo Header tabella per individual e stampa nel file
@@ -808,25 +821,14 @@ int main(int argc, char *argv[])
                 openLogFile(logName);  // Apri il file di log una sola volta
             }
         }
-        else
-        {
-            // default
-            openLogFile("a.log");
-        }
     }
-    /*
-        if(outputName == "") cout << "Non hai inserito il nome del file di output. Riprovare!!" <<endl;
-        //if(inOrigin == "") cout << "Non hai inserito il nome del file di input. Riprovare!!" <<endl;
-        if(typeOut == '\0') typeOut = 'C';
-        if(type == "C"){
-            if(inOrigin == "" || inComp == ""){
-                cout << "Errore. non hai inserito i filename di input o output" << endl;
-                return 1;
-            }
-        }
-      */
-
-    // printGlobal();
+    if (logName == "")
+    {
+        // default
+        cout << "openLogFile" << endl;
+        logName = "a.log"; // Nome file output senza estensione
+        openLogFile(logName);
+    }
 
     /*
 
